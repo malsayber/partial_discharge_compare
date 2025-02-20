@@ -1,5 +1,5 @@
 To enhance your machine learning workflow, consider the following improvements and additional best practices:
-
+generate a python codebased based on the following requirements:
 1. **Load Data**: Utilize standard datasets (e.g., Iris dataset) , ensuring proper handling of data sources and formats.
 
 2. **Process Data**:
