@@ -31,7 +31,7 @@ def load_executed_combinations():
 
 def save_executed_combinations(executed_combinations):
     """Saves executed combinations to a JSON file."""
-    tracker_filepath = os.path.join("ml_flow", TRACKER_FILE)
+    tracker_filepath = os.path.join("../ml_flow", TRACKER_FILE)
     combinations_list = [list(combo) for combo in executed_combinations] # Convert tuples to lists for JSON serialization
     with open(tracker_filepath, 'w') as f:
         json.dump(combinations_list, f, indent=4)
