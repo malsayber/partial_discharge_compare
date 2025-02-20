@@ -24,7 +24,7 @@ def main():
     else:
         config = { # Default configuration if config.json is not found
             "dataset_name": "iris",
-            "model_types": ["RandomForest"],
+            "model_types": ["RandomForest", "XGBoost", "LogisticRegression", "SVM"],
             "scaling_methods": ["standard"],
             "feature_selections": ["featurewiz"],
             "hyperparameter_tuning": True,
@@ -41,7 +41,7 @@ def main():
 
     target_column = config.get('target_column')
     results = [] # List to store results for each configuration
-
+    hh=config.get('model_types')
     for model_type in config.get('model_types'):
         for scaling_method in config.get('scaling_methods'):
             for feature_selection in config.get('feature_selections'):
@@ -93,7 +93,7 @@ def main():
     # Save results to JSON file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_filename = f"evaluation_results_{timestamp}.json"
-    results_filepath = os.path.join("ml_flow", results_filename) # Save in ml_flow directory
+    results_filepath = os.path.join("../ml_flow", results_filename) # Save in ml_flow directory
     with open(results_filepath, 'w') as f:
         json.dump(results, f, indent=4)
     logging.info(f"Evaluation results saved to {results_filepath}")
