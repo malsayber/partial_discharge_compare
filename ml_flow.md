@@ -55,4 +55,5 @@ generate a python codebased based on the following requirements:
 14. **Documentation and Reporting**:
     - **Comprehensive Documentation**: Provide clear documentation for code modules, functions, and classes to facilitate understanding and maintenance.
     - **Experiment Reports**: Generate detailed reports summarizing experiments, methodologies, and findings to communicate results effectively.
+15. All the code should be inside a folder called `src` and the data should be inside a folder called `data` and the log should be inside a folder called `log` and the model should be inside a folder called `model`
 
