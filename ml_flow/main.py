@@ -3,6 +3,7 @@ from data_processor import preprocess_data
 from model_runner import train_model, evaluate_model
 from parameter_tuner import tune_hyperparameters
 from feature_selector import select_features_featurewiz
+from helper import load_config
 import logging
 import argparse
 import json
@@ -17,26 +18,8 @@ def main():
     parser.add_argument('--config', type=str, default='config.json', help='Path to configuration JSON file')
     args = parser.parse_args()
 
-    # Load configuration from JSON file
-    if os.path.exists(args.config):
-        with open(args.config, 'r') as f:
-            config = json.load(f)
-    else:
-        config = { # Default configuration if config.json is not found
-            "dataset_name": "iris",
-            "model_types": ["RandomForest", "XGBoost", "LogisticRegression", "SVM"],
-            "scaling_methods": ["standard"],
-            "feature_selections": ["featurewiz"],
-            "hyperparameter_tuning": True,
-            "n_trials_optuna": 10,
-            "cv_folds": 3,
-            "test_size": 0.2,
-            "val_size": 0.2,
-            "random_state": 42,
-            "target_column": "target"
-        }
-        logging.warning(f"Configuration file '{args.config}' not found. Using default configuration.")
-
+    # Load configuration using helper function
+    config = load_config(args.config)
     logging.info("Starting ML Workflow...")
 
     target_column = config.get('target_column')
