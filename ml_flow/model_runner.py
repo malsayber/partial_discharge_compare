@@ -1,6 +1,7 @@
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 import xgboost as xgb
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
@@ -25,6 +26,8 @@ def train_model(X_train, y_train, model_type='DecisionTree', params=None, cv=5, 
         model = RandomForestClassifier(**(params or {}))
     elif model_type == 'XGBoost':
         model = xgb.XGBClassifier(**(params or {}))
+    elif model_type == 'LogisticRegression':
+        model = LogisticRegression(**(params or {}))
     else:
         raise ValueError(f"Model type '{model_type}' not supported.")
 
