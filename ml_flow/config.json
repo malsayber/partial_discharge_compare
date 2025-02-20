@@ -1,9 +1,9 @@
 {
   "dataset_name": "iris",
-  "model_types": ["RandomForest"],
+  "model_types": ["RandomForest", "XGBoost", "LogisticRegression", "SVM"],
   "scaling_methods": ["standard"],
   "feature_selections": ["featurewiz"],
-  "hyperparameter_tuning": true,
+  "hyperparameter_tuning": True,
   "n_trials_optuna": 10,
   "cv_folds": 3,
   "test_size": 0.2,

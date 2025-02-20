@@ -24,7 +24,6 @@ def main():
 
     target_column = config.get('target_column')
     results = [] # List to store results for each configuration
-    hh=config.get('model_types')
     for model_type in config.get('model_types'):
         for scaling_method in config.get('scaling_methods'):
             for feature_selection in config.get('feature_selections'):
