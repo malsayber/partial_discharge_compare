@@ -24,10 +24,18 @@ def main():
 
     target_column = config.get('target_column')
     results = [] # List to store results for each configuration
+    executed_combinations = set() # To track executed combinations
+
     for model_type in config.get('model_types'):
         for scaling_method in config.get('scaling_methods'):
             for feature_selection in config.get('feature_selections'):
                 logging.info(f"Current Configuration: Model Type: {model_type}, Scaling Method: {scaling_method}, Feature Selection: {feature_selection}")
+
+                combination_key = (model_type, scaling_method, feature_selection)
+                if combination_key in executed_combinations:
+                    logging.info(f"Combination {combination_key} already executed. Skipping.")
+                    continue # Skip to the next combination
+
 
                 # 1. Load Data
                 df = load_data(dataset_name=config.get('dataset_name'))
@@ -71,6 +79,7 @@ def main():
                     "test_accuracy": accuracy,
                     "test_roc_auc": roc_auc
                 })
+                executed_combinations.add(combination_key) # Add combination to executed set
 
     # Save results to JSON file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
