@@ -25,6 +25,14 @@ def objective(trial, model_type, X_train, y_train, cv):
             'kernel': trial.suggest_categorical('kernel', ['linear', 'rbf', 'poly']),
             'gamma': trial.suggest_categorical('gamma', ['scale', 'auto'])
         }
+    elif model_type == 'LogisticRegression':
+        params = {
+            'C': trial.suggest_float('C', 1e-5, 1e2, log=True),
+            'penalty': trial.suggest_categorical('penalty', ['l1', 'l2']),
+            'solver': trial.suggest_categorical('solver', ['liblinear', 'saga']),
+            'tol': trial.suggest_float('tol', 1e-5, 1e-2, log=True),
+            'max_iter': trial.suggest_int('max_iter', 100, 300)
+        }
     elif model_type == 'RandomForest':
         params = {
             'n_estimators': trial.suggest_int('n_estimators', 100, 500, step=100),
