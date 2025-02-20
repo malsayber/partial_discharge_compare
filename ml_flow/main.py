@@ -13,6 +13,30 @@ from datetime import datetime
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+TRACKER_FILE = 'executed_combinations_tracker.json' # File to save executed combinations
+
+def load_executed_combinations():
+    """Loads executed combinations from a JSON file."""
+    executed_combinations = set()
+    tracker_filepath = os.path.join("ml_flow", TRACKER_FILE)
+    if os.path.exists(tracker_filepath):
+        try:
+            with open(tracker_filepath, 'r') as f:
+                loaded_combinations_list = json.load(f)
+                executed_combinations = set(tuple(combo) for combo in loaded_combinations_list) # Convert lists back to tuples
+            logging.info(f"Loaded executed combinations from {tracker_filepath}")
+        except (FileNotFoundError, json.JSONDecodeError):
+            logging.warning(f"Could not load executed combinations from {tracker_filepath}. Starting fresh.")
+    return executed_combinations
+
+def save_executed_combinations(executed_combinations):
+    """Saves executed combinations to a JSON file."""
+    tracker_filepath = os.path.join("ml_flow", TRACKER_FILE)
+    combinations_list = [list(combo) for combo in executed_combinations] # Convert tuples to lists for JSON serialization
+    with open(tracker_filepath, 'w') as f:
+        json.dump(combinations_list, f, indent=4)
+    logging.info(f"Saved executed combinations to {tracker_filepath}")
+
 def main():
     parser = argparse.ArgumentParser(description="ML Workflow Script")
     parser.add_argument('--config', type=str, default='config.json', help='Path to configuration JSON file')
@@ -24,7 +48,7 @@ def main():
 
     target_column = config.get('target_column')
     results = [] # List to store results for each configuration
-    executed_combinations = set() # To track executed combinations
+    executed_combinations = load_executed_combinations() # Load executed combinations from file
 
     for model_type in config.get('model_types'):
         for scaling_method in config.get('scaling_methods'):
@@ -79,7 +103,8 @@ def main():
                     "test_accuracy": accuracy,
                     "test_roc_auc": roc_auc
                 })
-                executed_combinations.add(combination_key) # Add combination to executed set
+                executed_combinations.add(combination_key) # Add combination to executed set after successful run
+                save_executed_combinations(executed_combinations) # Save after each combination
 
     # Save results to JSON file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
