@@ -1,8 +1,8 @@
 {
   "dataset_name": "iris",
-  "model_type": "RandomForest",
-  "scaling_method": "standard",
-  "feature_selection": "featurewiz",
+  "model_types": ["RandomForest"],
+  "scaling_methods": ["standard"],
+  "feature_selections": ["featurewiz"],
   "hyperparameter_tuning": true,
   "n_trials_optuna": 10,
   "cv_folds": 3,
