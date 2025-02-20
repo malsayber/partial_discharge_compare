@@ -93,7 +93,7 @@ def main():
                 model, cv_score = train_model(X_train, y_train, model_type=model_type, params=best_params, cv=config.get('cv_folds'))
 
                 # 6. Model Evaluation
-                accuracy, roc_auc = evaluate_model(model, X_test, y_test)
+                accuracy, roc_auc, precision, recall, f1, conf_matrix = evaluate_model(model, X_test, y_test)
 
                 results.append({
                     "model_type": model_type,
@@ -101,7 +101,11 @@ def main():
                     "feature_selection": feature_selection,
                     "cv_score": cv_score,
                     "test_accuracy": accuracy,
-                    "test_roc_auc": roc_auc
+                    "test_roc_auc": roc_auc,
+                    "test_precision": precision,
+                    "test_recall": recall,
+                    "test_f1_score": f1,
+                    "test_confusion_matrix": conf_matrix.tolist() # Convert to list for JSON serialization
                 })
                 executed_combinations.add(combination_key) # Add combination to executed set after successful run
                 save_executed_combinations(executed_combinations) # Save after each combination

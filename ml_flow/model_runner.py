@@ -3,8 +3,8 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 import xgboost as xgb
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score, precision_score, recall_score, f1_score, confusion_matrix
 import logging
 import pickle
 import os
@@ -52,6 +52,11 @@ def evaluate_model(model, X_test, y_test):
     logging.info("Evaluating model on test set...")
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted') # Use 'weighted' for multi-class
+    recall = recall_score(y_test, y_pred, average='weighted')    # Use 'weighted' for multi-class
+    f1 = f1_score(y_test, y_pred, average='weighted')        # Use 'weighted' for multi-class
+    conf_matrix = confusion_matrix(y_test, y_pred)
+
     logging.info(f"Test Accuracy: {accuracy:.4f}")
     logging.info("Classification Report:\n" + classification_report(y_test, y_pred))
 
@@ -63,8 +68,13 @@ def evaluate_model(model, X_test, y_test):
     except AttributeError: # Models without predict_proba (e.g., some SVM kernels without probability=True)
         logging.warning("ROC AUC score not available for this model.")
         roc_auc = None
+
+    logging.info(f"Test Precision: {precision:.4f}")
+    logging.info(f"Test Recall: {recall:.4f}")
+    logging.info(f"Test F1-Score: {f1:.4f}")
+    logging.info("Confusion Matrix:\n" + str(conf_matrix))
     logging.info("Evaluation completed.")
-    return accuracy, roc_auc
+    return accuracy, roc_auc, precision, recall, f1, conf_matrix
 
 if __name__ == '__main__':
     from data_loader import load_data
