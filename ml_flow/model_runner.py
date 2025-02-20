@@ -60,7 +60,7 @@ def evaluate_model(model, X_test, y_test):
     except AttributeError: # Models without predict_proba (e.g., some SVM kernels without probability=True)
         logging.warning("ROC AUC score not available for this model.")
         roc_auc = None
-
+    logging.info("Evaluation completed.")
     return accuracy, roc_auc
 
 if __name__ == '__main__':
