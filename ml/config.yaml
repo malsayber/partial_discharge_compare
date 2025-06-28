@@ -1,0 +1,18 @@
+dataset_name: iris
+model_types:
+  - RandomForest
+  - XGBoost
+  - LogisticRegression
+  - SVM
+scaling_methods:
+  - standard
+feature_selections:
+  - null
+  - featurewiz
+hyperparameter_tuning: true
+n_trials_optuna: 10
+cv_folds: 3
+test_size: 0.2
+val_size: 0.2
+random_state: 42
+target_column: target

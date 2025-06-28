@@ -1,9 +1,10 @@
-from data_loader import load_data
-from data_processor import preprocess_data
-from model_runner import train_model, evaluate_model
-from parameter_tuner import tune_hyperparameters
-from feature_selector import select_features_featurewiz
-from helper import load_config
+from .data_loader import load_data
+from .data_processor import preprocess_data
+from .model_runner import train_model, evaluate_model
+from .parameter_tuner import tune_hyperparameters
+from .feature_expander import expand_features_featurewiz
+from .feature_selector import select_features_featurewiz
+from .helper import load_config
 import logging
 import argparse
 import json
@@ -13,12 +14,12 @@ from datetime import datetime
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-TRACKER_FILE = 'executed_combinations_tracker.json' # File to save executed combinations
+TRACKER_FILE = 'executed_combinations_tracker.json'  # File to save executed combinations
 
 def load_executed_combinations():
     """Loads executed combinations from a JSON file."""
     executed_combinations = set()
-    tracker_filepath = os.path.join("ml_flow", TRACKER_FILE)
+    tracker_filepath = os.path.join("ml", TRACKER_FILE)
     if os.path.exists(tracker_filepath):
         try:
             with open(tracker_filepath, 'r') as f:
@@ -31,7 +32,7 @@ def load_executed_combinations():
 
 def save_executed_combinations(executed_combinations):
     """Saves executed combinations to a JSON file."""
-    tracker_filepath = os.path.join("../ml_flow", TRACKER_FILE)
+    tracker_filepath = os.path.join("ml", TRACKER_FILE)
     combinations_list = [list(combo) for combo in executed_combinations] # Convert tuples to lists for JSON serialization
     with open(tracker_filepath, 'w') as f:
         json.dump(combinations_list, f, indent=4)
@@ -39,7 +40,7 @@ def save_executed_combinations(executed_combinations):
 
 def main():
     parser = argparse.ArgumentParser(description="ML Workflow Script")
-    parser.add_argument('--config', type=str, default='config.json', help='Path to configuration JSON file')
+    parser.add_argument('--config', type=str, default='ml/config.yaml', help='Path to configuration YAML file')
     args = parser.parse_args()
 
     # Load configuration using helper function
@@ -64,9 +65,10 @@ def main():
                 # 1. Load Data
                 df = load_data(dataset_name=config.get('dataset_name'))
 
-                # 2. Feature Selection (optional)
+                # 2. Optional feature engineering and selection
                 if feature_selection == 'featurewiz':
-                    selected_features = select_features_featurewiz(df.copy(), target_column) # Use .copy()
+                    df = expand_features_featurewiz(df.copy(), target_column)
+                    selected_features = select_features_featurewiz(df.copy(), target_column)
                 elif feature_selection is None: # Handle None explicitly
                     selected_features = df.columns.drop(target_column).tolist() # Use all features if no feature selection
                 else:
@@ -113,7 +115,7 @@ def main():
     # Save results to JSON file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_filename = f"evaluation_results_{timestamp}.json"
-    results_filepath = os.path.join("../ml_flow", results_filename) # Save in ml_flow directory
+    results_filepath = os.path.join("ml", results_filename)  # Save in ml directory
     with open(results_filepath, 'w') as f:
         json.dump(results, f, indent=4)
     logging.info(f"Evaluation results saved to {results_filepath}")

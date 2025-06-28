@@ -1,19 +1,33 @@
 import json
 import logging
 import os
+from pathlib import Path
+import yaml
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def load_config(config_path=r'../ml_flow/config.json'):
-    """
-    Loads configuration from a JSON file. If the file is not found or JSON is invalid,
-    returns a default configuration and logs a warning.
+
+def load_config(config_path: str | os.PathLike = Path(__file__).resolve().parent / 'config.yaml') -> dict:
+    """Load configuration from JSON or YAML file.
+
+    Parameters
+    ----------
+    config_path : str | os.PathLike
+        Path to configuration file.
+
+    Returns
+    -------
+    dict
+        Parsed configuration dictionary or empty dict on failure.
     """
     try:
         if os.path.exists(config_path):
             with open(config_path, 'r') as f:
-                config = json.load(f)
+                if str(config_path).endswith(('.yaml', '.yml')):
+                    config = yaml.safe_load(f)
+                else:
+                    config = json.load(f)
             logging.info(f"Configuration loaded from '{config_path}'")
             return config
         else:
