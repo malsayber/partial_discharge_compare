@@ -1,0 +1,7 @@
+# Default configuration for feature extraction
+features:
+  enable_all: true
+  available:
+    - time_skewness
+    - time_kurtosis
+    - wavelet_energy
