@@ -1,5 +1,8 @@
 # Partial Discharge Compare
 
+
+Utilities and workflows for comparing partial discharge models.
+=======
 This project provides a modular machine learning pipeline for experimenting with different models, feature selection techniques and hyperparameter tuning. It was initially created to compare approaches for partial discharge classification, but the code is generic enough to be used on datasets such as the Iris dataset.
 
 ## Folder Structure
