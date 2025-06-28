@@ -3,14 +3,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def preprocess_data(df, features=None, target=None, scaling_method='standard', test_size=0.2, val_size=0.2, random_state=42):
     """
     Preprocesses the  feature scaling and train-val-test split.
     """
-    logging.info("Preprocessing data...")
+    logger.info("Preprocessing data...")
 
     if features is None:
         features = df.columns.drop(target)
@@ -23,10 +22,10 @@ def preprocess_data(df, features=None, target=None, scaling_method='standard', t
     # Feature Scaling
     if scaling_method == 'standard':
         scaler = StandardScaler()
-        logging.info("Applying StandardScaler...")
+        logger.info("Applying StandardScaler...")
     elif scaling_method == 'minmax':
         scaler = MinMaxScaler()
-        logging.info("Applying MinMaxScaler...")
+        logger.info("Applying MinMaxScaler...")
     else:
         raise ValueError(f"Scaling method '{scaling_method}' not supported.")
 
@@ -37,7 +36,7 @@ def preprocess_data(df, features=None, target=None, scaling_method='standard', t
     X_train, X_temp, y_train, y_temp = train_test_split(X_scaled_df, y, test_size=(test_size + val_size), random_state=random_state)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=test_size / (test_size + val_size), random_state=random_state)
 
-    logging.info("Data preprocessing complete.")
+    logger.info("Data preprocessing complete.")
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 if __name__ == '__main__':

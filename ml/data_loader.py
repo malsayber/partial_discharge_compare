@@ -3,8 +3,7 @@ from sklearn.datasets import load_iris
 import os
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def load_data(dataset_def, data_dir='data', target_column='target'):
@@ -27,15 +26,15 @@ def load_data(dataset_def, data_dir='data', target_column='target'):
 
     path = dataset_def.get('path')
     if path == 'iris':
-        logging.info("Loading Iris dataset...")
+        logger.info("Loading Iris dataset...")
         iris = load_iris(as_frame=True)
         df = iris.frame
         os.makedirs(data_dir, exist_ok=True)
         csv_path = os.path.join(data_dir, 'iris.csv')
         df.to_csv(csv_path, index=False)
-        logging.info(f"Iris dataset saved to {csv_path}")
+        logger.info(f"Iris dataset saved to {csv_path}")
     else:
-        logging.info(f"Loading dataset from {path}...")
+        logger.info(f"Loading dataset from {path}...")
         df = pd.read_csv(path)
 
     mapping = dataset_def.get('label_mapping') or {}
