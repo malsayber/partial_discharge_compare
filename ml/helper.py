@@ -4,8 +4,7 @@ import os
 from pathlib import Path
 import yaml
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def load_config(config_path: str | os.PathLike = Path(__file__).resolve().parent / 'config.yaml') -> dict:
@@ -28,16 +27,16 @@ def load_config(config_path: str | os.PathLike = Path(__file__).resolve().parent
                     config = yaml.safe_load(f)
                 else:
                     config = json.load(f)
-            logging.info(f"Configuration loaded from '{config_path}'")
+            logger.info(f"Configuration loaded from '{config_path}'")
             return config
         else:
-            logging.warning(f"Configuration file '{config_path}' not found. Using default settings.")
+            logger.warning(f"Configuration file '{config_path}' not found. Using default settings.")
 
     except json.JSONDecodeError:
-        logging.error(f"Invalid JSON format in '{config_path}'. Using default settings.")
+        logger.error(f"Invalid JSON format in '{config_path}'. Using default settings.")
 
     except Exception as e:
-        logging.error(f"Unexpected error loading configuration from '{config_path}': {e}.")
+        logger.error(f"Unexpected error loading configuration from '{config_path}': {e}.")
 
     return {}  # Return a default empty config instead of None
 

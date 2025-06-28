@@ -5,14 +5,66 @@ from .parameter_tuner import tune_hyperparameters
 from .feature_expander import expand_features_featurewiz
 from .feature_selector import select_features_featurewiz
 from .helper import load_config
-import logging
 import argparse
 import json
+import logging
 import os
+import subprocess
 from datetime import datetime
+from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def _setup_root_logger(config_path: str) -> str:
+    """Configure root logger with file handlers and header metadata.
+
+    Parameters
+    ----------
+    config_path : str
+        Path to the configuration file used for this experiment.
+
+    Returns
+    -------
+    str
+        Timestamp string used for the per-run log file name.
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.handlers.clear()
+
+    main_log = log_dir / "main.log"
+    run_log = log_dir / f"main_{timestamp}.log"
+
+    fh_main = logging.FileHandler(main_log)
+    fh_main.setFormatter(formatter)
+    fh_run = logging.FileHandler(run_log)
+    fh_run.setFormatter(formatter)
+    sh = logging.StreamHandler()
+    sh.setFormatter(formatter)
+
+    root_logger.addHandler(fh_main)
+    root_logger.addHandler(fh_run)
+    root_logger.addHandler(sh)
+
+    commit_hash = (
+        subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+        ).stdout.strip()
+        or "unknown"
+    )
+
+    root_logger.info("Experiment started")
+    root_logger.info("Config path: %s", config_path)
+    root_logger.info("Git commit: %s", commit_hash)
+
+    return timestamp
 
 TRACKER_FILE = 'executed_combinations_tracker.json'  # File to save executed combinations
 
@@ -42,6 +94,8 @@ def main():
     parser = argparse.ArgumentParser(description="ML Workflow Script")
     parser.add_argument('--config', type=str, default='ml/config.yaml', help='Path to configuration YAML file')
     args = parser.parse_args()
+
+    timestamp = _setup_root_logger(args.config)
 
     # Load configuration using helper function
     config = load_config(args.config)
@@ -158,7 +212,6 @@ def main():
                     save_executed_combinations(executed_combinations)
 
     # Save results to JSON file
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_filename = f"evaluation_results_{timestamp}.json"
     results_filepath = os.path.join("ml", results_filename)  # Save in ml directory
     with open(results_filepath, 'w') as f:

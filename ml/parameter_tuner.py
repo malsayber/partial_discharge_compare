@@ -4,15 +4,14 @@ from .data_processor import preprocess_data  # Import preprocess_data
 from .data_loader import load_data  # Import load_data
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def objective(trial, model_type, X_train, y_train, cv):
     """
     Objective function for Optuna optimization.
     Defines the hyperparameter search space for each model type.
     """
-    logging.info(f"Starting Optuna trial for {model_type}...")
+    logger.info(f"Starting Optuna trial for {model_type}...")
     if model_type == 'DecisionTree':
         params = {
             'max_depth': trial.suggest_int('max_depth', 2, 30),
@@ -58,17 +57,17 @@ def tune_hyperparameters(X_train, y_train, model_type, n_trials=10, cv=3):
     """
     Tunes hyperparameters for a given model type using Optuna.
     """
-    logging.info(f"Starting hyperparameter tuning for {model_type} using Optuna...")
+    logger.info(f"Starting hyperparameter tuning for {model_type} using Optuna...")
     study = optuna.create_study(direction='maximize') # We want to maximize accuracy
     study.optimize(lambda trial: objective(trial, model_type, X_train, y_train, cv), n_trials=n_trials)
 
-    logging.info("Hyperparameter tuning finished.")
-    logging.info("  Best trial:")
+    logger.info("Hyperparameter tuning finished.")
+    logger.info("  Best trial:")
     trial = study.best_trial
-    logging.info(f"    Value (Mean CV Accuracy): {trial.value:.4f}")
-    logging.info("    Params: ")
+    logger.info(f"    Value (Mean CV Accuracy): {trial.value:.4f}")
+    logger.info("    Params: ")
     for key, value in trial.params.items():
-        logging.info(f"      {key}: {value}")
+        logger.info(f"      {key}: {value}")
 
     return study.best_params
 

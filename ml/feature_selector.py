@@ -2,14 +2,13 @@ from featurewiz import featurewiz
 import pandas as pd
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def select_features_featurewiz(df, target_column, corr_limit=0.7, feature_engg=False, category_encoders=None, n_jobs=-1):
     """
     Selects features using featurewiz.
     """
-    logging.info("Starting feature selection using featurewiz...")
+    logger.info("Starting feature selection using featurewiz...")
     features, trainm = featurewiz(
         df,
         target=target_column,
@@ -19,8 +18,8 @@ def select_features_featurewiz(df, target_column, corr_limit=0.7, feature_engg=F
         category_encoders=category_encoders,
         n_jobs=n_jobs
     )
-    logging.info("Feature selection using featurewiz complete.")
-    logging.info(f"Selected features: {features}")
+    logger.info("Feature selection using featurewiz complete.")
+    logger.info(f"Selected features: {features}")
     return features
 
 if __name__ == '__main__':
