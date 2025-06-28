@@ -41,7 +41,7 @@ def preprocess_data(df, features=None, target=None, scaling_method='standard', t
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 if __name__ == '__main__':
-    from data_loader import load_data
+    from .data_loader import load_data
     df = load_data()
     X_train, X_val, X_test, y_train, y_val, y_test = preprocess_data(df, target='target') # Assuming 'target' column exists after loading
     print("Data preprocessed and split.")

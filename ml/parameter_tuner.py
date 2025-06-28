@@ -1,7 +1,7 @@
 import optuna
-from model_runner import train_model # Import train_model
-from data_processor import preprocess_data # Import preprocess_data
-from data_loader import load_data # Import load_data
+from .model_runner import train_model  # Import train_model
+from .data_processor import preprocess_data  # Import preprocess_data
+from .data_loader import load_data  # Import load_data
 import logging
 
 # Configure logging
@@ -74,7 +74,7 @@ def tune_hyperparameters(X_train, y_train, model_type, n_trials=10, cv=3):
 
 if __name__ == '__main__':
     df = load_data()
-    X_train, _, _, y_train, _, _ = preprocess_data(df, target='target') # Only need training data for tuning
+    X_train, _, _, y_train, _, _ = preprocess_data(df, target='target')  # Only need training data for tuning
 
     best_params = tune_hyperparameters(X_train, y_train, model_type='RandomForest', n_trials=5) # Example for RandomForest
     print("\nBest Hyperparameters for RandomForest:")
