@@ -54,7 +54,9 @@ The workflow is configured via a configuration file. Although the repository shi
 
 ```yaml
 # config.yaml
-dataset_name: iris
+datasets:
+  - path: iris
+    label_mapping: {}
 model_types: [RandomForest, XGBoost, LogisticRegression, SVM]
 scaling_methods: [standard]
 feature_selections: [null, featurewiz]
@@ -66,6 +68,9 @@ val_size: 0.2
 random_state: 42
 target_column: target
 ```
+
+Each entry under `datasets` specifies the dataset `path` and an optional
+`label_mapping` used to remap values in the target column.
 
 Run the main script using your configuration file:
 
