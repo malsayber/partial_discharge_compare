@@ -125,6 +125,8 @@ def main():
                         model_type=model_type,
                         params=best_params,
                         cv=config.get('cv_folds'),
+                        checkpoint_interval=config.get('checkpoint_interval'),
+                        resume=config.get('resume'),
                     )
 
                     # 6. Model Evaluation

@@ -67,7 +67,13 @@ test_size: 0.2
 val_size: 0.2
 random_state: 42
 target_column: target
+checkpoint_interval: 10  # save XGBoost checkpoint every 10 rounds
+resume: false            # resume training from the latest checkpoint
 ```
+
+Set ``checkpoint_interval`` to a positive integer to periodically save
+XGBoost checkpoints. Enable ``resume`` to continue training from the
+latest checkpoint if one exists in the ``model`` directory.
 
 Each entry under `datasets` specifies the dataset `path` and an optional
 `label_mapping` used to remap values in the target column.

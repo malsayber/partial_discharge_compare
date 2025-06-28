@@ -8,20 +8,80 @@ from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 import logging
 import pickle
 import os
+import re
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def train_model(X_train, y_train, model_type='DecisionTree', params=None, cv=5, scoring='accuracy', model_dir='model'):
+def _latest_checkpoint(model_dir: str, model_type: str):
+    """Return path to latest checkpoint and epoch number."""
+    pattern = re.compile(fr"{model_type}_epoch(\d+)\.json")
+    latest_epoch = 0
+    latest_path = None
+    if not os.path.exists(model_dir):
+        return None, 0
+    for fname in os.listdir(model_dir):
+        match = pattern.match(fname)
+        if match:
+            epoch = int(match.group(1))
+            if epoch > latest_epoch:
+                latest_epoch = epoch
+                latest_path = os.path.join(model_dir, fname)
+    return latest_path, latest_epoch
+
+
+class _XGBCheckpoint(xgb.callback.TrainingCallback):
+    def __init__(self, model_dir: str, model_type: str, interval: int):
+        self.model_dir = model_dir
+        self.model_type = model_type
+        self.interval = interval
+
+    def after_iteration(self, model, epoch: int, evals_log) -> bool:
+        if (epoch + 1) % self.interval == 0:
+            path = os.path.join(
+                self.model_dir, f"{self.model_type}_epoch{epoch + 1}.json"
+            )
+            model.save_model(path)
+            logger.info("Saved checkpoint %s", path)
+        return False
+
+
+def train_model(
+    X_train,
+    y_train,
+    model_type: str = "DecisionTree",
+    params: dict | None = None,
+    cv: int = 5,
+    scoring: str = "accuracy",
+    model_dir: str = "model",
+    checkpoint_interval: int | None = None,
+    resume: bool = False,
+):
+    """Train a model with optional checkpointing and resume support.
+
+    Parameters
+    ----------
+    X_train, y_train : array-like
+        Training features and labels.
+    model_type : str, optional
+        Type of model to train.
+    params : dict or None, optional
+        Hyperparameters passed to the model constructor.
+    cv : int, optional
+        Number of cross-validation folds.
+    scoring : str, optional
+        Metric used for cross-validation scoring.
+    model_dir : str, optional
+        Directory where models and checkpoints are stored.
+    checkpoint_interval : int or None, optional
+        Save XGBoost checkpoints every ``checkpoint_interval`` boosting rounds.
+    resume : bool, optional
+        If ``True``, resume training from the latest checkpoint if available.
     """
-    Trains and evaluates a machine learning model using cross-validation.
-    Saves the trained model to model_dir.
-    """
-    logging.info(f"Training {model_type} model...")
+    logger.info("Training %s model...", model_type)
     if model_type == 'DecisionTree':
-        model = DecisionTreeClassifier(**(params or {})) # Use params if provided, else default
+        model = DecisionTreeClassifier(**(params or {}))
     elif model_type == 'SVM':
-        model = SVC(**(params or {}), probability=True) # probability=True for ROC AUC
+        model = SVC(**(params or {}), probability=True)
     elif model_type == 'RandomForest':
         model = RandomForestClassifier(**(params or {}))
     elif model_type == 'XGBoost':
@@ -32,16 +92,25 @@ def train_model(X_train, y_train, model_type='DecisionTree', params=None, cv=5, 
         raise ValueError(f"Model type '{model_type}' not supported.")
 
     cv_scores = cross_val_score(model, X_train, y_train, cv=cv, scoring=scoring)
-    logging.info(f"Cross-validation scores ({scoring}): {cv_scores}")
-    logging.info(f"Mean CV score ({scoring}): {cv_scores.mean():.4f}")
+    logger.info("Cross-validation scores (%s): %s", scoring, cv_scores)
+    logger.info("Mean CV score (%s): %.4f", scoring, cv_scores.mean())
 
-    model.fit(X_train, y_train) # Fit on the entire training set after CV
+    callbacks = []
+    fit_kwargs = {}
+    if model_type == "XGBoost" and checkpoint_interval:
+        callbacks.append(_XGBCheckpoint(model_dir, model_type, checkpoint_interval))
+    if model_type == "XGBoost" and resume:
+        ckpt_path, _ = _latest_checkpoint(model_dir, model_type)
+        if ckpt_path:
+            logger.info("Resuming from checkpoint %s", ckpt_path)
+            fit_kwargs["xgb_model"] = ckpt_path
+    model.fit(X_train, y_train, **fit_kwargs, callbacks=callbacks)  # Fit after CV
 
     os.makedirs(model_dir, exist_ok=True) # Ensure model directory exists
     model_path = os.path.join(model_dir, f'{model_type}_model.pkl')
     with open(model_path, 'wb') as file:
         pickle.dump(model, file)
-    logging.info(f"Trained {model_type} model saved to {model_path}")
+    logger.info("Trained %s model saved to %s", model_type, model_path)
 
     return model, cv_scores.mean()
 
@@ -49,7 +118,7 @@ def evaluate_model(model, X_test, y_test):
     """
     Evaluates the trained model on the test set.
     """
-    logging.info("Evaluating model on test set...")
+    logger.info("Evaluating model on test set...")
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred, average='weighted') # Use 'weighted' for multi-class
@@ -57,23 +126,23 @@ def evaluate_model(model, X_test, y_test):
     f1 = f1_score(y_test, y_pred, average='weighted')        # Use 'weighted' for multi-class
     conf_matrix = confusion_matrix(y_test, y_pred)
 
-    logging.info(f"Test Accuracy: {accuracy:.4f}")
-    logging.info("Classification Report:\n" + classification_report(y_test, y_pred))
+    logger.info("Test Accuracy: %.4f", accuracy)
+    logger.info("Classification Report:\n%s", classification_report(y_test, y_pred))
 
     # ROC AUC for binary or multiclass (ovr)
     try:
         y_prob = model.predict_proba(X_test)
         roc_auc = roc_auc_score(y_test, y_prob, multi_class='ovr') # 'ovr' for multiclass
-        logging.info(f"Test ROC AUC (OVR): {roc_auc:.4f}")
+        logger.info("Test ROC AUC (OVR): %.4f", roc_auc)
     except AttributeError: # Models without predict_proba (e.g., some SVM kernels without probability=True)
-        logging.warning("ROC AUC score not available for this model.")
+        logger.warning("ROC AUC score not available for this model.")
         roc_auc = None
 
-    logging.info(f"Test Precision: {precision:.4f}")
-    logging.info(f"Test Recall: {recall:.4f}")
-    logging.info(f"Test F1-Score: {f1:.4f}")
-    logging.info("Confusion Matrix:\n" + str(conf_matrix))
-    logging.info("Evaluation completed.")
+    logger.info("Test Precision: %.4f", precision)
+    logger.info("Test Recall: %.4f", recall)
+    logger.info("Test F1-Score: %.4f", f1)
+    logger.info("Confusion Matrix:\n%s", conf_matrix)
+    logger.info("Evaluation completed.")
     return accuracy, roc_auc, precision, recall, f1, conf_matrix
 
 if __name__ == '__main__':
