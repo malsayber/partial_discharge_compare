@@ -24,7 +24,7 @@ def select_features_featurewiz(df, target_column, corr_limit=0.7, feature_engg=F
     return features
 
 if __name__ == '__main__':
-    from data_loader import load_data
+    from .data_loader import load_data
     df = load_data()
     target_column = 'target' # Assuming 'target' column exists
     selected_features = select_features_featurewiz(df.copy(), target_column) # Use .copy() to avoid modifying original df

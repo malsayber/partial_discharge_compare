@@ -77,8 +77,8 @@ def evaluate_model(model, X_test, y_test):
     return accuracy, roc_auc, precision, recall, f1, conf_matrix
 
 if __name__ == '__main__':
-    from data_loader import load_data
-    from data_processor import preprocess_data
+    from .data_loader import load_data
+    from .data_processor import preprocess_data
 
     df = load_data()
     X_train, X_val, X_test, y_train, y_val, y_test = preprocess_data(df, target='target') # Assuming 'target' column exists
