@@ -3,3 +3,8 @@ scikit-learn
 xgboost
 optuna
 featurewiz
+numpy
+scipy
+mne
+tqdm
+pyyaml
