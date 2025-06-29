@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from partial_discharge_compare.preprocess import cleaning
-from .fixtures.synthetic_pd import generate_synthetic_partial_discharge
+from preprocess import cleaning
+from unitest.fixtures.synthetic_pd import generate_synthetic_partial_discharge
 
 
 def test_bandpass_filter_shape() -> None:

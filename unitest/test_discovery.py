@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from partial_discharge_compare.preprocess import discovery
+from preprocess import discovery
 
 
 def test_discover_sklearn_dataset(tmp_path: Path, monkeypatch) -> None:

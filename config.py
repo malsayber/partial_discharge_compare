@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """Configuration loader for the PD classification pipeline."""
 
 from pathlib import Path
