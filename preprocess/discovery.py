@@ -8,7 +8,7 @@ from typing import List
 
 from .sklearn_data import ensure_dataset
 
-from .. import config
+from partial_discharge_compare import config
 
 Session = namedtuple("Session", ["cable_id", "sensor_files", "label_file"])
 

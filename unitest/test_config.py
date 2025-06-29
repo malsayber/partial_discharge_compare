@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from partial_discharge_compare import config
+import config
 
 
 def test_load_config() -> None:
