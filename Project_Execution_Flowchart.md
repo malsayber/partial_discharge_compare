@@ -14,14 +14,72 @@ dataset/
 │   ├── ...
 
 ```
+```plaintext
 
+📁 partial_discharge_project/
+│
+├── 📁 station_52009/                           # ➊ One folder per measurement station
+│   │
+│   ├── 📁 data_clean/                      # ──── 1  Cleaning & Denoising
+│   │   ├── 📁 standard_denoising_normalisation/
+│   │   ├── 📁 advanced_denoising/
+│   │   │   ├── 📁 VMD/
+│   │   │   └── 📁 EWT/
+│   │   ├── 📁 synthetic_augmentation/
+│   │   │   ├── 📁 tsaug/
+│   │   │   ├── 📁 jitter/
+│   │   │   └── 📁 PRPD_simulations/
+│   │   └── 📁 outlier_detection/
+│   │       └── 📁 PyOD/
+│   │
+│   ├── 📁 features/                        # ➋ 2 – 4  Features & Selection
+│   │   │
+│   │   ├── 📁 2_feature_engineering/
+│   │   │   ├── 📁 classic_stats/                # RMS, kurtosis…
+│   │   │   ├── 📁 time_frequency/               # FFT bands, STFT
+│   │   │   ├── 📁 wavelet_cwt/                  # (optional)
+│   │   │   ├── 📁 entropy_fractal/              # (optional)
+│   │   │   ├── 📁 dfs_featuretools/             # (optional)
+│   │   │   └── 📁 image_representations/        # (optional)
+│   │   │
+│   │   ├── 📁 3_feature_comb_expansion/
+│   │   │   ├── 📁 pairwise_math_ops/
+│   │   │   ├── 📁 polynomial_features/
+│   │   │   ├── 📁 mathematical_combination/
+│   │   │   ├── 📁 autofeat/                     # (optional)
+│   │   │   └── 📁 symbolic_regression/          # (optional)
+│   │   │
+│   │   └── 📁 4_feature_selection/
+│   │       ├── 📁 tracks/
+│   │       │   ├── 📁 baseline_all_feats/
+│   │       │   ├── 📁 featurewiz_corr_xgb/
+│   │       │   └── 📁 mljar_internal/
+│   │       └── 📁 optuna_subset_optim/          # (optional)
+│   │
+│   ├── 📁 models/                          # ➌ 5  Model Training & Tuning
+│   │   ├── 📁 baseline_models/                 # default hyper-params
+│   │   ├── 📁 tuned_gridsearch/                # GridSearchCV artefacts
+│   │   ├── 📁 tuned_optuna/                    # (optional)
+│   │   ├── 📁 ensembles/                       # stacking / blending
+│   │   └── 📁 incremental_stream/              # (optional, river)
+│   │
+│   ├── 📁 reports/                         # optional: metrics, plots, notebooks
+│   │
+│   └── 📁 drive_mirror/ (optional)         # Google Drive mount
+│       └── [replicates the same sub-tree]
+│
+├── 📁 station_52008/
+│   └── [identical structure as station_52009]
+├── 📁 station_52007/
+│   └── [identical structure as station_52009]
+```
 ### 📈 Pipeline Flowchart
                                 ▶ PARTIAL DISCHARGE (PD) CLASSIFICATION PIPELINE ◀
                      ────────────────────────────────────────────────────────────────────────────
       1️⃣  DATA INGESTION & PRE-PROCESSING
       ────────────────────────────────────────────────────────────────────────────────────────────
-      • Load raw time-series PD signals (CSV/HDF5/live stream)
-      • Standard denoising, normalisation, segmentation
+      • Load raw time-series PD signals (npy)
+      • Standard denoising, normalisation
       • ⚙️  Advanced denoising (VMD / EWT) ..................... (optional)
       • ⚙️  Synthetic augmentation (tsaug / jitter / PRPD sims)  (optional)
       • ⚙️  Outlier / novelty detection (PyOD) ................. (optional)
