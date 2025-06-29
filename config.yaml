@@ -46,27 +46,41 @@ preprocessing_options:
 # 4. Feature extraction catalogue (Phase 1)
 # -------------------------------------------------------------------
 features:
-  enable_all: true                                # If false, toggle individual blocks
-  available:
-    #  ⬇ Time‑domain statistics
-    - time_skewness
-    - time_kurtosis
-    - time_rms
-    - time_variance
-    - peak_to_peak
-    - zero_cross_rate
-    #  ⬇ Frequency‑domain statistics
-    - spectral_centroid
-    - spectral_bandwidth
-    - spectral_entropy
-    - dominant_frequency
-    #  ⬇ Wavelet / entropy family
-    - wavelet_energy
-    - wavelet_entropy
-    - wavelet_symlets_energy
-    - multiscale_entropy
-    #  ⬇ MFCCs for UHF acoustic PD sensors
-    - mfcc
+  enable_all: true
+  mne_features:
+    enabled: true
+    freq_bands:
+      delta: [0.5, 4.5]
+      theta: [4.5, 8.5]
+      alpha: [8.5, 11.5]
+      sigma: [11.5, 15.5]
+      beta:  [15.5, 30.0]
+    selected_features:
+      - line_length
+      - zero_crossings
+      - kurtosis
+      - rms
+  librosa:
+    enabled: true
+    selected_features:
+      - spectral_centroid
+      - spectral_bandwidth
+      - mfcc
+  custom:
+    enabled: true
+    selected_features:
+      - time_skewness
+      - time_kurtosis
+      - time_rms
+      - time_variance
+      - peak_to_peak
+      - zero_cross_rate
+      - spectral_entropy
+      - dominant_frequency
+      - wavelet_energy
+      - wavelet_entropy
+      - wavelet_symlets_energy
+      - multiscale_entropy
 
 # -------------------------------------------------------------------
 # 5. Modelling search‑space (Phase 2)

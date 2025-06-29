@@ -6,6 +6,8 @@ featurewiz
 numpy
 scipy
 mne
+mne-features
+librosa
 tqdm
 pyyaml
 pydantic

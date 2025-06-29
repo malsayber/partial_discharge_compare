@@ -19,6 +19,8 @@ dependencies = [
     "vmdpy",
     "PyWavelets",
     "tsaug",
+    "mne-features",
+    "librosa",
 ]
 
 [tool.setuptools]

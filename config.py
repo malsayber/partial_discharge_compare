@@ -49,6 +49,26 @@ class PreprocessingOptions(BaseModel):
     bandpass_hz: List[int]
 
 
+class LibraryFeatureBlock(BaseModel):
+    """Configuration for a group of features from a library."""
+
+    enabled: bool = True
+    selected_features: List[str] = Field(default_factory=list)
+
+
+class MNEFeatureBlock(LibraryFeatureBlock):
+    freq_bands: Dict[str, List[float]] = Field(default_factory=dict)
+
+
+class FeatureCatalog(BaseModel):
+    """Root feature catalog configuration."""
+
+    enable_all: bool = True
+    mne_features: MNEFeatureBlock
+    librosa: LibraryFeatureBlock
+    custom: LibraryFeatureBlock
+
+
 class Config(BaseModel):
     """Root configuration model."""
 
@@ -56,6 +76,7 @@ class Config(BaseModel):
     runtime: RuntimeConfig
     datasets: List[DatasetConfig] = Field(default_factory=list)
     preprocessing_options: PreprocessingOptions
+    features: FeatureCatalog
 
 
 CONFIG_PATH = Path(__file__).with_name("config.yaml")
