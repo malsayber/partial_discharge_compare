@@ -79,19 +79,90 @@ Below is a **developer‐oriented task breakdown**, organized by pipeline phase.
 
 9. **File:** `features/catalog.py`
 
-    * Read `config.features.available` and produce a dict  `{ feature_name: extractor_fn }`.
+    * Read the yaml for list of features
+    * and produce a dict  `{ feature_name: extractor_fn }`.
     * Support toggling an entire block off when `enable_all: false`.
 
 ### 1.2 Base Feature Extractors
 
 10. **File:** `features/extractors.py`
 
-    * Implement one function per feature:
+    * By default we will use mne_features to extract the features
+      *     List of features available via mne_features:
+        * pow_freq_bands
+        * spect_edge_freq
+        * energy_freq_bands
+        * wavelet_coef_energy
+        * kurtosis
+        * skewness
+        * line_length
+        * mean
+        * ptp_amp
+        * quantile
+        * rms
+        * std
+        * variance
+        * spect_slope
+        * zero_crossings
+        * higuchi_fd
+        * hjorth_complexity
+        * hjorth_complexity_spect
+        * hjorth_mobility
+        * hjorth_mobility_spect
+        * teager_kaiser_energy
+        * phase_lock_val
+        * spect_corr
+        * time_corr
+        * decorr_time
+        * katz_fd
+        * samp_entropy   # can cause memory issue, so we can disable it in config.
+        * svd_entropy
+        * svd_fisher_info
+        * max_cross_corr
+        * spect_entropy
+    * But we can also use other libraries like librosa, tsfresh, etc.But avoid duplicating features.
+    * If dedicated library is not available, then implement custom  function per feature:
 
         * `compute_time_skewness(window: np.ndarray) -> float`
         * `compute_spectral_centroid(window: np.ndarray, fs: float) -> float`
         * …and so on for kurtosis, RMS, entropy, MFCC, wavelet energies, etc.
     * Write unit tests to verify expected ranges on synthetic signals.
+    * Eventhough come from different package or custome,but seperate the features based on the theme and library.
+    
+    ```yaml
+            ├── 📁 2_feature_engineering/
+        │   │   │   ├── 📁 classic_stats/                # RMS, kurtosis…
+        │   │   │   ├── 📁 time_frequency/               # FFT bands, STFT
+        │   │   │   ├── 📁 wavelet_cwt/                  
+        │   │   │   ├── 📁 entropy_fractal/              
+        │   │   │   ├── 📁 dfs_featuretools/            
+        │   │   │   └── 📁 image_representations/       
+        │   │   │
+    ```
+    * List the features from each library or custom library in the config.yaml. For example
+    ```yaml
+      mne_features:
+          freq_bands:
+          delta: [0.5, 4.5]
+          theta: [4.5, 8.5]
+          alpha: [8.5, 11.5]
+          sigma: [11.5, 15.5]
+          beta:  [15.5, 30.0]
+          selected_features:
+            - pow_freq_bands
+            - spect_edge_freq
+            - energy_freq_bands
+            - wavelet_coef_energy
+            - kurtosis
+            - skewness
+            - line_length
+      librosa:
+          selected_features:
+            - spectral_centroid
+            - spectral_bandwidth
+            - spectral_contrast
+            - mfcc
+    ```
 
 ### 1.3 Feature Expansion
 
