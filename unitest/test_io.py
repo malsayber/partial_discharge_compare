@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import h5py
 
-from partial_discharge_compare.preprocess import io
+from preprocess import io
 
 
 def test_load_pd_csv(tmp_path: Path) -> None:
