@@ -9,5 +9,8 @@ mne
 tqdm
 pyyaml
 pydantic
-joblib
+h5py
+vmdpy
 PyWavelets
+tsaug
+joblib

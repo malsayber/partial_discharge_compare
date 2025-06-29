@@ -15,6 +15,10 @@ dependencies = [
     "xgboost",
     "optuna",
     "featurewiz",
+    "h5py",
+    "vmdpy",
+    "PyWavelets",
+    "tsaug",
 ]
 
 [tool.setuptools]
