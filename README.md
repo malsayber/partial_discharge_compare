@@ -19,6 +19,7 @@ python -m ml.main --stage preprocess
 
 Use `--stage full-run` to execute all stages sequentially. Flags such as
 `--advanced-denoise` and `--augment` toggle optional preprocessing steps.
+Pass `--jobs N` to enable parallel processing across N workers.
 
 ## Directory Structure
 

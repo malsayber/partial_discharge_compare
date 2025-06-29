@@ -13,3 +13,4 @@ h5py
 vmdpy
 PyWavelets
 tsaug
+joblib
