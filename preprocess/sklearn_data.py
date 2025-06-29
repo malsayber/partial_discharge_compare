@@ -8,7 +8,7 @@ import json
 import numpy as np
 from sklearn import datasets
 
-from .. import config
+from partial_discharge_compare import config
 
 _SUPPORTED = {
     "iris": datasets.load_iris,

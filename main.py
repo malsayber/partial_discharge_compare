@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .. import config
+import config
 
 
 def parse_args() -> ArgumentParser:
