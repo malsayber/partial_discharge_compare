@@ -2,52 +2,16 @@
 
 ```plaintext
 dataset/
-├── drowsy_driving_raja/                      # RAW INPUTS (unaltered)
-│   ├── S1/
-│   │   └── MD.mff/                 # This is a folder
-│   │       ├── info.xml
-│   │       ├── eeg1.mff
-│   │       ├── ...
-│   │       ├── S01_20170519_043933.mov
-│   │       ├── S01_20170519_043933_2.mov
-│   │       ├── S01_20170519_043933_3.mov
-│   ├── S2/
-│   │   └── MD.mff/
-│   │       ├── ...
-│   │       ├── TEST_20170601_042544.mov
-│   │       ├── TEST_20170601_042544_2.mov
-│   │       ├── TEST_20170601_042544_3.mov
-│   └── ...
-│
-├── cvat_zip_final/                          # ZIP files from CVAT
-│   ├── S1/
-│   │   └── from_cvat/
-│   │       ├── S01_20170519_043933.zip
-│   │       ├── S01_20170519_043933_2.zip
-│   │       ├── S01_20170519_043933_3.zip
-│   ├── S2/
-│   │   └── from_cvat/
-│   │       ├── ...
-│   └── ...
-├── drowsy_driving_raja_processed/                      # CLEANED + SYNC OUTPUTS
-│   ├── S1/
-│   │   S1.fif
-│   │   ├── S01_20170519_043933/
-│   │   │   ├── seg_annotated_raw.fif
-│   │   │   ├── eeg_clean_epo.fif
-│   │   │   ├── seg_ear.fif # this is EAR in fif format
-│   │   │   ├── ear_eog.fif
-│   │   ├── S01_20170519_043933_2/
-│   │   ├── S01_20170519_043933_3/
-│   ├── S2/
-│   └── ...
-│
-├── drowsy_driving_raja_features/                       # Optional ML-friendly outputs
-│   ├── S1/
-│   │   ├── S01_20170519_043933_bandpower.npy
-│   │   ├── S01_20170519_043933_2_bandpower.npy
-│   │   └── ...
-│   └── ...
+├── contactless_pd_detection/                   # Main dataset folder
+│   ├── station_52009/                          # Station ID
+│   │   ├── 748987.npy                          # Raw signal (20 ms , about 800000 samples)
+│   │   ├── 748988.npy
+│   │   ├── ...
+│   ├── station_52008/
+│   │   ├── ...
+│   ├── station_52007/
+│   │   ├── ...
+│   ├── ...
 
 ```
 
