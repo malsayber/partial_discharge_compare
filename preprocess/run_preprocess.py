@@ -5,7 +5,10 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from pathlib import Path
 import logging
-from typing import Iterable
+
+
+from joblib import Parallel, delayed
+from tqdm import tqdm
 
 import numpy as np
 
@@ -62,7 +65,14 @@ def process_session(session: discovery.Session, dataset: str, force: bool, adv_d
         out_dir = config.PROCESSED_DIR / session.cable_id / sensor
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        for idx, (win, label) in enumerate(zip(windows, labels)):
+        for idx, (win, label) in enumerate(
+            tqdm(
+                zip(windows, labels),
+                total=len(windows),
+                desc=window_id_base,
+                leave=False,
+            )
+        ):
             out_path = out_dir / f"{window_id_base}_{idx}.npy"
             if out_path.exists() and not force:
                 continue
@@ -110,24 +120,36 @@ def process_npy_file(record: discovery.FileRecord, force: bool, adv_denoise: boo
 
     out_dir = config.PROCESSED_DIR / record.station_id
     out_dir.mkdir(parents=True, exist_ok=True)
-    for idx, win in enumerate(windows):
+    for idx, win in enumerate(
+        tqdm(windows, total=len(windows), desc=fid, leave=False)
+    ):
         out_path = out_dir / f"{fid}_{idx}.npy"
         if out_path.exists() and not force:
             continue
         np.save(out_path, win)
 
 
-def run(dataset: str, force: bool, adv_denoise: bool, augment: bool) -> None:
-    """Run preprocessing for ``dataset``."""
+def run(
+    dataset: str,
+    force: bool,
+    adv_denoise: bool,
+    augment: bool,
+    jobs: int = 1,
+) -> None:
+    """Run preprocessing for ``dataset`` in parallel."""
     records = discovery.discover_npy_files(dataset)
     if records:
-        for rec in records:
-            process_npy_file(rec, force, adv_denoise, augment)
+        Parallel(n_jobs=jobs)(
+            delayed(process_npy_file)(rec, force, adv_denoise, augment)
+            for rec in tqdm(records, desc="stations")
+        )
         return
 
     sessions = discovery.discover_sessions(dataset)
-    for session in sessions:
-        process_session(session, dataset, force, adv_denoise, augment)
+    Parallel(n_jobs=jobs)(
+        delayed(process_session)(s, dataset, force, adv_denoise, augment)
+        for s in tqdm(sessions, desc="sessions")
+    )
 
 
 if __name__ == "__main__":
@@ -136,7 +158,8 @@ if __name__ == "__main__":
     parser.add_argument("--force", action="store_true", help="Overwrite existing files")
     parser.add_argument("--advanced-denoise", action="store_true", help="Use advanced denoising")
     parser.add_argument("--augment", action="store_true", help="Augment training data")
+    parser.add_argument("--jobs", type=int, default=config.CONFIG.project.jobs, help="Parallel workers")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    run(args.dataset, args.force, args.advanced_denoise, args.augment)
+    run(args.dataset, args.force, args.advanced_denoise, args.augment, args.jobs)
