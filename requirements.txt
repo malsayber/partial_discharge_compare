@@ -9,3 +9,7 @@ mne
 tqdm
 pyyaml
 pydantic
+h5py
+vmdpy
+PyWavelets
+tsaug
