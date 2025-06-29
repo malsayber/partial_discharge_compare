@@ -9,3 +9,5 @@ mne
 tqdm
 pyyaml
 pydantic
+joblib
+PyWavelets

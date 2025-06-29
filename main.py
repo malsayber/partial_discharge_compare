@@ -73,7 +73,13 @@ def main(argv: list[str] | None = None) -> None:
     if args.stage in {"preprocess", "full-run"}:
         for ds in config.CONFIG.datasets:
             logger.info("Processing dataset: %s", ds.path)
-            run_preprocess.run(ds.path, args.force, args.advanced_denoise, args.augment)
+            run_preprocess.run(
+                ds.path,
+                args.force,
+                args.advanced_denoise,
+                args.augment,
+                args.jobs,
+            )
         if args.stage == "preprocess":
             return
 
