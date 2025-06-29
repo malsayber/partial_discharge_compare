@@ -7,7 +7,7 @@
 # 1. Project‑wide paths & runtime options
 # -------------------------------------------------------------------
 project:
-  root_dir: "project_pd"                         # Relocatable root folder
+  root_dir: "partial_discharge_project"         # Relocatable root folder
   raw_data_dir: "data/raw"                      # Raw PD sensor recordings
   processed_dir: "data/processed"               # Cleaned & windowed arrays
   features_dir: "outputs/features"              # Per‑window features & master Parquet
@@ -27,6 +27,8 @@ datasets:
   - path: wine                                    # Wine quality (multi‑class)
     label_mapping: {}
   - path: breast_cancer                           # Binary classification
+    label_mapping: {}
+  - path: dataset/contactless_pd_detection       # Contactless PD signals
     label_mapping: {}
 
 # -------------------------------------------------------------------

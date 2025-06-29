@@ -16,28 +16,30 @@ from scipy.signal import butter, filtfilt
 import config
 
 
-def save_cleaned_signal(x: np.ndarray, clean_type: str, dataset: str, window_id: str) -> Path:
-    """Save a cleaned signal to the processed data directory.
+def save_cleaned_signal(x: np.ndarray, station_id: str, sub_dir: str, file_id: str) -> Path:
+    """Save a cleaned signal under the station's data_clean folder.
 
     Parameters
     ----------
     x:
         Array containing the cleaned signal.
-    clean_type:
-        Name of the cleaning method (e.g. ``bandpass`` or ``denoise``).
-    dataset:
-        Dataset name used to create the subdirectory.
-    window_id:
-        Identifier for the sample/window.
+    station_id:
+        Name of the measurement station, e.g. ``"station_52009"``.
+    sub_dir:
+        Relative directory inside ``data_clean`` describing the step,
+        such as ``"standard_denoising_normalisation"`` or
+        ``"advanced_denoising/VMD"``.
+    file_id:
+        Identifier for the file or window.
 
     Returns
     -------
     Path
         Location of the saved file.
     """
-    out_dir = config.PROCESSED_DIR / clean_type / dataset
+    out_dir = config.ROOT_DIR / station_id / "data_clean" / sub_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"{window_id}.npy"
+    out_path = out_dir / f"{file_id}.npy"
     np.save(out_path, x)
     return out_path
 

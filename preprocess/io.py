@@ -26,3 +26,11 @@ def load_pd_hdf5(path: str | Path | None) -> np.ndarray:
         key = list(fh.keys())[0]
         data = np.asarray(fh[key])
     return data.astype(float).ravel()
+
+
+def load_pd_npy(path: str | Path | None) -> np.ndarray:
+    """Load a NumPy ``.npy`` file as a 1D array."""
+    if path is None:
+        return np.array([])
+    data = np.load(path)
+    return data.astype(float).ravel()
