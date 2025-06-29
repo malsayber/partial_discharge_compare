@@ -1,7 +1,7 @@
 """Configuration loader for the PD classification pipeline."""
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 import yaml
 from pydantic import BaseModel, Field
@@ -32,11 +32,30 @@ class RuntimeConfig(BaseModel):
     model_registry_format: str
 
 
+class DatasetConfig(BaseModel):
+    """Configuration entry for a dataset."""
+
+    path: str
+    label_mapping: Optional[Dict[str, int]] = None
+
+
+class PreprocessingOptions(BaseModel):
+    """Preprocessing related options."""
+
+    advanced_denoise: List[bool]
+    augment: List[bool]
+    wavelet_feats: List[bool]
+    window_length_ms: int
+    bandpass_hz: List[int]
+
+
 class Config(BaseModel):
     """Root configuration model."""
 
     project: ProjectConfig
     runtime: RuntimeConfig
+    datasets: List[DatasetConfig] = Field(default_factory=list)
+    preprocessing_options: PreprocessingOptions
 
 
 CONFIG_PATH = Path(__file__).with_name("config.yaml")

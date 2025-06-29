@@ -35,3 +35,31 @@ project_pd/
 ```
 
 Synthetic test signals are located under `unitest/fixtures/` for unit testing.
+
+## Pre-processing utilities
+
+Running the preprocessing stage will read the datasets listed in
+`config.yaml`, apply cleaning and optional augmentation, and write
+windowed arrays under `data/processed/`.
+
+```bash
+python -m main --stage preprocess --advanced-denoise --augment
+```
+
+Key modules:
+
+- `preprocess/cleaning.py` – filtering and denoising helpers (e.g. `bandpass_filter`)
+- `preprocess/augmentation.py` – optional `time_warp` and `add_jitter`
+- `preprocess/windowing.py` – segmentation and label loading
+- `preprocess/run_preprocess.py` – orchestrates the full workflow
+
+A short walkthrough is provided in `notebooks/cleaning_tutorial.ipynb`.
+
+### Tests
+
+Run all unit tests with:
+
+```bash
+python unitest/run_all_test.py
+```
+

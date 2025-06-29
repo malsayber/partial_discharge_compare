@@ -9,6 +9,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from preprocess import run_preprocess
+
 import config
 
 
@@ -67,6 +69,13 @@ def main(argv: list[str] | None = None) -> None:
     logger.info("Stage: %s", args.stage)
     logger.info("Flags: %s", vars(args))
     logger.info("------------------------")
+
+    if args.stage in {"preprocess", "full-run"}:
+        for ds in config.CONFIG.datasets:
+            logger.info("Processing dataset: %s", ds.path)
+            run_preprocess.run(ds.path, args.force, args.advanced_denoise, args.augment)
+        if args.stage == "preprocess":
+            return
 
     logger.info("Stage '%s' not yet implemented", args.stage)
 
