@@ -8,3 +8,4 @@ scipy
 mne
 tqdm
 pyyaml
+pydantic
