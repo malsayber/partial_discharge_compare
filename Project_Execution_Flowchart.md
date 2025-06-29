@@ -297,6 +297,19 @@ Run the entire workflow (`full-run`) **or** jump straight to *pre-processing*, *
 | `--optuna`                                                         | Replaces GridSearch with Optuna Bayesian HPO in Phase 2. |
 
 
+### Quick Start
+
+Execute the preprocessing stage with:
+
+```bash
+python main.py --stage preprocess --advanced-denoise --augment
+```
+
+The script reads datasets and parameters from `config.yaml` and dispatches
+`preprocess/run_preprocess.py`. Cleaned windows are saved to
+`data/processed/<dataset>/<sensor>/`.
+
+
 
 # Partial Discharge Classification Pipeline for High-Voltage Cable Diagnostics
 
