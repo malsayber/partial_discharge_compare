@@ -1,0 +1,136 @@
+# ─────────────────────────────────────────────
+#  config.yaml  •  Master settings for PD‑classification pipeline
+#  (auto‑generate an exhaustive experiment matrix)
+# ─────────────────────────────────────────────
+
+# -------------------------------------------------------------------
+# 1. Project‑wide paths & runtime options
+# -------------------------------------------------------------------
+project:
+  root_dir: "project_pd"                         # Relocatable root folder
+  raw_data_dir: "data/raw"                      # Raw PD sensor recordings
+  processed_dir: "data/processed"               # Cleaned & windowed arrays
+  features_dir: "outputs/features"              # Per‑window features & master Parquet
+  models_dir: "outputs/models"                  # Trained estimator artefacts (.joblib / ONNX)
+  reports_dir: "outputs/reports"                # HTML + PDF reports
+  logs_dir: "logs"                              # One run‑log per execution
+  random_state: 42
+  jobs: 8                                         # Parallel workers (‑‑jobs)
+
+# -------------------------------------------------------------------
+# 2. Dataset registry (multiple datasets are supported)
+# -------------------------------------------------------------------
+datasets:
+  # Add additional datasets here to benchmark generalisation.
+  - path: iris                                    # Built‑in scikit‑learn Iris dataset
+    label_mapping: {}                             # Optional remap of class labels
+  - path: wine                                    # Wine quality (multi‑class)
+    label_mapping: {}
+  - path: breast_cancer                           # Binary classification
+    label_mapping: {}
+
+# -------------------------------------------------------------------
+# 3. Pre‑processing toggles (Phase 0)
+#    All permutations will be explored automatically.
+# -------------------------------------------------------------------
+preprocessing_options:
+  advanced_denoise: [false, true]                 # VMD / EWT denoising
+  augment:        [false, true]                   # Synthetic time‑warp / jitter
+  wavelet_feats:  [false, true]                   # Add wavelet‑based features in Phase 1
+  window_length_ms: 5                             # Segmentation length (ms)
+  bandpass_hz: [100000, 30000000]                 # 100 kHz – 30 MHz band‑pass
+
+# -------------------------------------------------------------------
+# 4. Feature extraction catalogue (Phase 1)
+# -------------------------------------------------------------------
+features:
+  enable_all: true                                # If false, toggle individual blocks
+  available:
+    #  ⬇ Time‑domain statistics
+    - time_skewness
+    - time_kurtosis
+    - time_rms
+    - time_variance
+    - peak_to_peak
+    - zero_cross_rate
+    #  ⬇ Frequency‑domain statistics
+    - spectral_centroid
+    - spectral_bandwidth
+    - spectral_entropy
+    - dominant_frequency
+    #  ⬇ Wavelet / entropy family
+    - wavelet_energy
+    - wavelet_entropy
+    - wavelet_symlets_energy
+    - multiscale_entropy
+    #  ⬇ MFCCs for UHF acoustic PD sensors
+    - mfcc
+
+# -------------------------------------------------------------------
+# 5. Modelling search‑space (Phase 2)
+# -------------------------------------------------------------------
+scaling_methods:           # Feature scaling / normalisation
+  - standard
+  - minmax
+  - robust
+  - none                   # No scaling (tree models)
+
+feature_selections:        # Dimensionality reduction / subset selection
+  - null                   # All features
+  - featurewiz             # SULOV + XGB importance
+  - boruta
+  - rfe                    # Recursive feature elimination
+  - mrmr                   # Minimum‑redundancy‑maximum‑relevance
+
+model_types:               # Model zoo
+  - RandomForest
+  - ExtraTrees
+  - GradientBoosting
+  - XGBoost
+  - LightGBM
+  - CatBoost
+  - LogisticRegression
+  - SVM
+  - KNN
+  - NaiveBayes
+
+# -------------------------------------------------------------------
+# 6. Hyper‑parameter optimisation
+# -------------------------------------------------------------------
+hyperparameter_tuning:
+  enabled: true
+  tool: optuna                               # optuna or grid
+  n_trials: 50                               # Per experiment
+  timeout_minutes: 30                        # Safety time‑cap
+  early_stopping_rounds: 20                  # For GBDT / boosting models
+
+# -------------------------------------------------------------------
+# 7. Cross‑validation & data splits
+# -------------------------------------------------------------------
+cv_strategy:
+  cv_folds: 5
+  test_size: 0.2
+  val_size: 0.2
+  stratified: true
+
+# -------------------------------------------------------------------
+# 8. Experiment matrix generation
+#    The engine will take the CARTESIAN PRODUCT of ALL lists above
+#    (datasets × preprocessing × scaling × feature_selection × model),
+#    giving **hundreds of unique runs** out‑of‑the‑box.
+#    ‑‑optuna flag will further spawn parallel HPO trials per run.
+# -------------------------------------------------------------------
+experiments:
+  generator: cartesian_product                  # [cartesian_product | manual]
+  manual_list: []                              # Leave empty unless you want hand‑crafted names
+
+# -------------------------------------------------------------------
+# 9. Runtime & checkpointing
+# -------------------------------------------------------------------
+runtime:
+  checkpoint_interval: 10          # Persist intermediate artefacts every N experiments
+  resume: false                    # Resume from last checkpoint
+  verbosity: INFO
+  save_confusion_matrices: true
+  save_roc_curves: true
+  model_registry_format: onnx      # Export best model per experiment
