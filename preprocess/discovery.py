@@ -12,6 +12,9 @@ import config
 
 Session = namedtuple("Session", ["cable_id", "sensor_files", "label_file"])
 
+# One record per raw ``.npy`` file discovered in the contactless dataset
+FileRecord = namedtuple("FileRecord", ["station_id", "file_path"])
+
 
 def discover_sessions(dataset: str) -> List[Session]:
     """Find all recording sessions in ``data/raw/{dataset}``.
@@ -49,3 +52,17 @@ def discover_sessions(dataset: str) -> List[Session]:
             )
         )
     return sessions
+
+
+def discover_npy_files(dataset_path: str | Path) -> List[FileRecord]:
+    """Discover raw ``.npy`` files organised by station folders."""
+    base = Path(dataset_path)
+    records: List[FileRecord] = []
+    if not base.exists():
+        return records
+    for station_dir in sorted(base.glob("station_*")):
+        if not station_dir.is_dir():
+            continue
+        for file in station_dir.glob("*.npy"):
+            records.append(FileRecord(station_id=station_dir.name, file_path=str(file)))
+    return records
