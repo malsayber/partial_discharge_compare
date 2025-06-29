@@ -43,7 +43,10 @@ Below is a **developer‐oriented task breakdown**, organized by pipeline phase.
 ### 0.3 Signal Cleaning & Windowing
 
 5. **File:** `preprocess/cleaning.py`
-
+    * Make sure there is detail docstring for each function, and docstring at top of function
+    * For each of the technique below, save the cleaned signal to `data/processed/{clean_type}/{dataset}/{window_id}.npy`:
+    * Do a unit test about the cleaning functions to ensure they work as expected.
+    * Do a tutorial in a Jupyter notebook for all the cleaning type, to show how to use the cleaning functions.
     * Implement `bandpass_filter(x: np.ndarray, low: float, high: float, fs: float) -> np.ndarray`.
     * If `config.preprocessing_options.advanced_denoise == True`, call either:
 
@@ -66,7 +69,7 @@ Below is a **developer‐oriented task breakdown**, organized by pipeline phase.
       ```
       data/processed/{dataset}/{sensor}/{window_id}.npy
       ```
-    * Respect the `--force` flag to overwrite existing files.
+    * If clean file already exist skip, but respect the `--force` flag to overwrite existing files.
 
 ---
 
