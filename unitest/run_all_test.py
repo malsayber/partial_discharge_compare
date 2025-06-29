@@ -1,16 +1,21 @@
+"""Utility to run all tests in the :mod:`unitest` package.
+
+This script uses ``pytest`` so that both ``unittest`` style classes and
+standalone test functions are discovered correctly.  It also ensures the
+project root is on ``sys.path`` so that local modules such as ``config`` can be
+imported without installing the package.
 """
-Runs all unittests in the 'unittest' directory.
 
-All files matching the pattern 'test_*.py' will be discovered and executed.
-"""
+from __future__ import annotations
 
-import unittest
-
+import sys
 from pathlib import Path
+
+import pytest
+
 
 if __name__ == "__main__":
     base_dir = Path(__file__).parent
-    test_loader = unittest.TestLoader()
-    test_suite = test_loader.discover(start_dir=str(base_dir), pattern='test_*.py')
-    test_runner = unittest.TextTestRunner(verbosity=2)
-    test_runner.run(test_suite)
+    # Add the repository root to ``sys.path`` for local imports.
+    sys.path.insert(0, str(base_dir.parent))
+    sys.exit(pytest.main([str(base_dir)]))
