@@ -168,6 +168,7 @@ Run the entire workflow (`full-run`) **or** jump straight to *pre-processing*, *
 
 ### 📂 Feature Implementation Guidelines
 
+* For every major pipeline, save the results in `outputs/features/` or `output/preprocessing`.
 * **Separate Python files** for each feature (e.g., `time_mean.py`, `spectral_entropy.py`).
 * **Group related features** within the `feature_extraction` directory.
 * **Dedicated unit tests** verify each feature calculation.
