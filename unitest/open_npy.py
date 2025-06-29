@@ -30,7 +30,7 @@ def load_npy_file(file_path: str) -> Optional[np.ndarray]:
         print(f"Error: The file at {file_path} was not found.")
         return None
     except Exception as e:
-        print(f"An error occurred while loading {file_pata}: {e}")
+        print(f"An error occurred while loading {file_path}: {e}")
         return None
 
 def plot_npy_data(data: np.ndarray, file_name: str = "data") -> None:
