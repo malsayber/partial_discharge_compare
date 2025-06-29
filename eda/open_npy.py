@@ -56,7 +56,7 @@ def plot_npy_data(data: np.ndarray, file_name: str = "data") -> None:
 if __name__ == "__main__":
     # Example usage:
     # Path to the numpy file, using a relative path for better portability
-    file_path = r"data/748987.npy"
+    file_path = r"../unitest/data/748987.npy"
     
     # Load the data
     loaded_data = load_npy_file(file_path)
