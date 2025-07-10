@@ -1,12 +1,18 @@
+"""Minimal script walking through PD cleaning and feature extraction."""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from sklearn.metrics.pairwise import pairwise_distances
 from featurewiz import featurewiz
-import sys
-import os
+from sklearn.metrics.pairwise import pairwise_distances
 
-# Add project root to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Add project root to ``sys.path`` when running from ``notebooks/``
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT))
 
 from preprocess.cleaning import denoise_signal
 from features.extractors import FeatureExtractor
