@@ -6,6 +6,8 @@ from typing import Iterable
 import numpy as np
 from scipy import stats, signal
 import pywt
+import pandas as pd
+import inspect
 
 try:
     from mne_features.feature_extraction import extract_features
@@ -172,4 +174,38 @@ def compute_rms(window: np.ndarray, fs: float) -> float:
 
 def compute_samp_entropy(window: np.ndarray, fs: float) -> float:
     return _compute_mne_feature(window, fs, "samp_entropy")
+
+
+class FeatureExtractor:
+    """Simple wrapper used in tutorial scripts to compute features."""
+
+    def __init__(self, fs: float = 1.0) -> None:
+        from .catalog import load_feature_catalog
+
+        self.fs = fs
+        self.catalog = load_feature_catalog()
+
+    def extract_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Compute all enabled features for ``df``.
+
+        Parameters
+        ----------
+        df:
+            DataFrame containing a ``signal`` column.
+
+        Returns
+        -------
+        pd.DataFrame
+            Single-row DataFrame of extracted features.
+        """
+
+        arr = df.iloc[:, 0].to_numpy()
+        rows = {}
+        for name, func in self.catalog.items():
+            sig = inspect.signature(func)
+            kwargs = {}
+            if "fs" in sig.parameters:
+                kwargs["fs"] = self.fs
+            rows[name] = func(arr, **kwargs)
+        return pd.DataFrame([rows])
 

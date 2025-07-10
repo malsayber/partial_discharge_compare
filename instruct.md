@@ -329,3 +329,6 @@
         * CLI usage examples for each stage
         * Directory structure and config options
     * Embed the modular flowchart (ASCII or image) into the docs.
+    * `notebooks/new_developer_workflow.py` provides a linear walk-through of
+      the main modules. Run it line by line to understand the flow and extend it
+      for your own experiments.
