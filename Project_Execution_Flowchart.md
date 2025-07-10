@@ -37,10 +37,10 @@ dataset/
 │   │   ├── 📁 2_feature_engineering/
 │   │   │   ├── 📁 classic_stats/                # RMS, kurtosis…
 │   │   │   ├── 📁 time_frequency/               # FFT bands, STFT
-│   │   │   ├── 📁 wavelet_cwt/                  # (optional)
-│   │   │   ├── 📁 entropy_fractal/              # (optional)
-│   │   │   ├── 📁 dfs_featuretools/             # (optional)
-│   │   │   └── 📁 image_representations/        # (optional)
+│   │   │   ├── 📁 wavelet_cwt/                  
+│   │   │   ├── 📁 entropy_fractal/              
+│   │   │   ├── 📁 dfs_featuretools/             
+│   │   │   └── 📁 image_representations/        
 │   │   │
 │   │   ├── 📁 3_feature_comb_expansion/
 │   │   │   ├── 📁 pairwise_math_ops/

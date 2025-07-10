@@ -1,5 +1,3 @@
-Below is a **developer‐oriented task breakdown**, organized by pipeline phase. Each item describes exactly what to code or configure so that a programmer can implement the PD-classification pipeline end-to-end.
-
 ---
 
 ## 🔵 Phase 0 – Pre-processing & Signal Conditioning (`--stage preprocess`)
