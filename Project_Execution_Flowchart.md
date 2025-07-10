@@ -333,6 +333,183 @@ The script reads datasets and parameters from `config.yaml` and dispatches
 
 
 
+---
+
+## 🧪 **Experiment Pipelines (Standardized 4-Step Structure)**
+
+---
+
+### 🅀 Baseline (Exp 0) — *All features, no combination/selection*
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load raw time-series PD signals (`.npy`)
+* Standard denoising & normalization
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* Classic stats (RMS, kurtosis, skew, crest-factor)
+* Time–frequency (FFT bands, STFT)
+* Wavelet-based (CWT, wavelet energy)
+* Multiscale entropy, fractal dimension
+* Featuretools Deep Feature Synthesis
+* Image representations → scalograms
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* *None* (raw features only)
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* **4A Baseline** (all features passed to classifier directly)
+
+---
+
+### 🅁 Featurewiz Track (Exp 1)
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load `.npy`, standard denoising & normalization
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* All standard + optional features (see baseline)
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* Pairwise math ops (+, −, ×, ÷, |Δ|)
+* `PolynomialFeatures` (interaction-only)
+* `feature-engine` MathematicalCombination
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* **4B Featurewiz** (correlation pruning + XGBoost selector)
+
+---
+
+### 🅂 MLJAR-Supervised (Exp 2)
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load `.npy`, standard denoising & normalization
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* All features enabled
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* Pairwise ops + PolynomialFeatures + feature-engine MC
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* **4C MLJAR-supervised** (internal selector + AutoML leaderboard)
+
+---
+
+### 🅃 Advanced Denoising + BorutaShap (Exp 3)
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load `.npy`, **VMD denoising**
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* All features enabled
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* Pairwise ops + PolynomialFeatures + `AutoFeat` nonlinear features
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* BorutaShap selector → XGBoost
+
+---
+
+### 🅄 Data Augmentation + CatBoost (Exp 4)
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load `.npy`, standard denoising
+* Synthetic augmentation: `tsaug`, jitter, PRPD simulations
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* All features enabled
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* Pairwise ops + PolynomialFeatures + feature-engine MC
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* **4B Featurewiz** → CatBoost (class-balanced loss)
+
+---
+
+### 🅆 Wavelet Image CNN (Exp 5)
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load `.npy`, standard denoising
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* Image representations (scalograms, STFT slices)
+* Optional: all others computed for auxiliary use
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* *Not applicable* (CNN model consumes image input)
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* CNN training (end-to-end) → Softmax prediction
+
+---
+
+### 🅇 EWT + Symbolic Regression (Exp 6)
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load `.npy`, **EWT denoising**
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* All features enabled (EWT band energy emphasis)
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* Pairwise ops + PolynomialFeatures + `feature-engine`
+* **Symbolic regression** via PySR (closed-form synthesis)
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* PySR-selected equations → LightGBM
+
+---
+
+### 🅈 UMAP + Instance-Based Learner (Exp 7)
+
+#### 1️⃣ DATA INGESTION & PRE-PROCESSING
+
+* Load `.npy`, standard denoising
+
+#### 2️⃣ FEATURE ENGINEERING
+
+* All features enabled
+
+#### 3️⃣ FEATURE COMBINATION & EXPANSION
+
+* Pairwise ops + PolynomialFeatures + MC
+* Dimensionality reduction: UMAP (3D manifold)
+
+#### 4️⃣ FEATURE SELECTION TRACKS
+
+* Cluster-based learner (k-NN / DBSCAN) → Majority vote
+
+
 # Partial Discharge Classification Pipeline for High-Voltage Cable Diagnostics
 
 **Introduction:** Partial discharges (PD) are tiny electrical sparks that occur in weakened insulation of high-voltage cables and equipment. They are often the **earliest warning** of insulation failure, so detecting and classifying PD activity is critical for preventing cable breakdown. A PD classification pipeline typically involves several stages, from capturing noisy sensor data to producing a deployable model. Each stage of the pipeline is designed to **extract meaningful information from PD signals and ensure reliable early fault detection**. Below, we explain each stage in detail, focusing on high-voltage cable monitoring and why each step is important for diagnostics.
