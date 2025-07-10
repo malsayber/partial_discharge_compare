@@ -1,12 +1,18 @@
 """Developer workflow demo for PD cleaning and feature engineering.
 
-This script illustrates the core modules of the project in a compact,
-linear fashion.  It loads a small example signal, applies basic
-preprocessing, extracts features, computes a toy pairwise metric and
-optionally runs feature selection.  Each step logs what is happening
-and how many features are produced so you can follow the pipeline and
-extend it for your own experiments.  Run the file line by line inside a
-Python interpreter or notebook to see each transformation in detail.
+This example walks through the minimal pipeline so new contributors can
+experiment step by step.  The workflow is intentionally linear:
+
+1. **Load** the sample signal ``unitest/data/748987.npy``.
+2. **Preprocess** it with :func:`denoise_signal` (band-pass filter and
+   normalisation).
+3. **Extract features** using :class:`~features.extractors.FeatureExtractor`.
+4. **Compute** a pairwise distance matrix between those features.
+5. **Select features** via ``featurewiz`` (SULOV + XGB ranking).
+
+INFO logs report how many features exist at each stage so you can observe
+the effect of selection.  Run the file line by line in a Python session to
+adapt the workflow for your own data.
 """
 
 from __future__ import annotations
@@ -18,12 +24,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import pairwise_distances
-
-try:  # featurewiz is optional and heavy
-    from featurewiz import featurewiz
-except Exception as exc:  # pragma: no cover - optional dependency
-    featurewiz = None
-    logging.getLogger(__name__).warning("featurewiz unavailable: %s", exc)
+from featurewiz import featurewiz
 
 # Add project root to ``sys.path`` when running from ``notebooks/``
 ROOT = Path(__file__).resolve().parents[1]
@@ -113,7 +114,7 @@ def apply_pairwise_math(features: pd.DataFrame) -> pd.DataFrame:
                         index=features.columns, columns=features.columns)
 
 def select_features(features: pd.DataFrame, target: np.ndarray) -> list[str]:
-    """Perform feature selection using ``featurewiz`` if available.
+    """Perform feature selection using ``featurewiz``.
 
     Args:
         features: DataFrame of features with one row per sample.
@@ -126,18 +127,16 @@ def select_features(features: pd.DataFrame, target: np.ndarray) -> list[str]:
         * Recursive feature elimination or permutation importance.
         * Dimensionality reduction via PCA, t-SNE or UMAP.
     """
-    # featurewiz expects the target variable to be in the same dataframe
-    # Here we create a dummy target for demonstration purposes.
-    # In a real scenario, you would use your actual target variable.
-    if featurewiz is None:
-        logger.info("featurewiz missing, skipping selection")
-        return list(features.columns)
+    # ``featurewiz`` expects the target column to be present in the
+    # input DataFrame. In this example we generate a dummy binary target
+    # array because the sample signal has no labels. Replace
+    # ``dummy_target`` in :func:`main` with your own target values.
+    features['target'] = target
     try:
-        features['target'] = target
         fwiz = featurewiz(features, 'target', corr_limit=0.7, verbose=0)
         selected_features, _ = fwiz.feature_selection()
         return selected_features
-    except Exception as exc:  # pragma: no cover - fallback path
+    except Exception as exc:  # pragma: no cover - handle unexpected errors
         logger.warning("featurewiz failed: %s", exc)
         return list(features.columns)
 
@@ -177,7 +176,10 @@ def main() -> None:
     logger.debug("Pairwise distance matrix head:\n%s", pairwise_matrix.head())
 
     # 5. Select features
-    # Create a dummy target variable for demonstration
+    # ``featurewiz`` needs a target column in the DataFrame. Because our
+    # example signal has no labels, we create a random binary target purely
+    # to satisfy the API. Replace this with your actual labels when adapting
+    # the workflow.
     np.random.seed(42)
     dummy_target = np.random.randint(0, 2, size=features.shape[0])
     selected_features = select_features(features.copy(), dummy_target)
