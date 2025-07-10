@@ -332,7 +332,8 @@
     * `notebooks/new_developer_workflow.py` provides a linear walk-through of
       the main modules. Run it line by line to understand the flow and extend it
       for your own experiments. Each stage emits INFO logs so you can see what
-      happens next. The script loads a small example signal from
-      `unitest/data/748987.npy` using a path resolved from the project root so
-      you can execute it from any working directory. If `featurewiz` is
-      unavailable the example simply returns all features.
+      happens next, including how many features are generated and retained.
+      The script loads a small example signal from `unitest/data/748987.npy`
+      using a path resolved from the project root so you can execute it from any
+      working directory. If `featurewiz` is unavailable the example simply
+      returns all features.

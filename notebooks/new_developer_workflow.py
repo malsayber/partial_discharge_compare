@@ -1,4 +1,13 @@
-"""Minimal script walking through PD cleaning and feature extraction."""
+"""Developer workflow demo for PD cleaning and feature engineering.
+
+This script illustrates the core modules of the project in a compact,
+linear fashion.  It loads a small example signal, applies basic
+preprocessing, extracts features, computes a toy pairwise metric and
+optionally runs feature selection.  Each step logs what is happening
+and how many features are produced so you can follow the pipeline and
+extend it for your own experiments.  Run the file line by line inside a
+Python interpreter or notebook to see each transformation in detail.
+"""
 
 from __future__ import annotations
 
@@ -30,51 +39,53 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_data(file_path):
-    """
-    Loads raw time-series PD signals from a .npy file.
+def load_data(file_path: Path) -> np.ndarray:
+    """Load a sample PD signal from disk.
 
-    This is the first step in the workflow, where we load the raw data.
-    The data is expected to be a numpy array.
+    Args:
+        file_path: Path to the ``.npy`` file containing the signal.
+
+    Returns:
+        Loaded 1D numpy array.
 
     Other tracks to explore:
-    - Loading data from other formats like CSV, Parquet, or directly from a database.
-    - Handling larger-than-memory datasets using libraries like Dask or Vaex.
+        * Loading data from CSV or Parquet files.
+        * Handling larger-than-memory datasets with Dask or Vaex.
     """
     logger.info("Loading sample signal from %s", file_path)
     return np.load(file_path)
 
-def preprocess_data(signal):
-    """
-    Applies standard denoising to the raw signal.
+def preprocess_data(signal: np.ndarray) -> np.ndarray:
+    """Apply standard denoising to the raw signal.
 
-    This step is crucial for removing noise from the signal, which can
-    significantly improve the quality of the extracted features. We use a
-    standard denoising technique here.
+    Args:
+        signal: Raw signal array.
+
+    Returns:
+        Cleaned and normalised signal.
 
     Other tracks to explore:
-    - Advanced denoising techniques: Wavelet denoising, Kalman filters, etc.
-    - Synthetic data augmentation: Creating more data by adding noise, shifting, or scaling the signal.
-    - Outlier detection and removal: Identifying and removing anomalous data points.
+        * Advanced denoising such as wavelets or Kalman filters.
+        * Synthetic augmentation (noise, shifts, scaling).
+        * Outlier detection and removal.
     """
     logger.info("Preprocessing signal")
     # Assume an example sampling rate of 100 MHz so the default
     # band-pass frequencies from ``config.yaml`` are valid.
     return denoise_signal(signal, fs=100_000_000)
 
-def extract_features(denoised_signal):
-    """
-    Extracts classic statistical features from the denoised signal.
+def extract_features(denoised_signal: np.ndarray) -> pd.DataFrame:
+    """Extract basic statistical features from the signal.
 
-    Feature extraction is the process of creating new features from the existing
-    data. These features can help machine learning models to better understand
-    the data. Here, we extract some classic statistical features.
+    Args:
+        denoised_signal: Cleaned signal from :func:`preprocess_data`.
+
+    Returns:
+        DataFrame with one row of extracted features.
 
     Other tracks to explore:
-    - More advanced features: Time-frequency domain features (e.g., from CWT or STFT),
-      non-linear features, or features from pre-trained models.
-    - Automated feature engineering: Using libraries like featuretools to automatically
-      generate features.
+        * Time-frequency or non-linear features.
+        * Automated feature engineering libraries such as ``featuretools``.
     """
     logger.info("Extracting features")
     # Pass the same sampling rate used during preprocessing
@@ -84,35 +95,36 @@ def extract_features(denoised_signal):
     features = extractor.extract_features(signal_df)
     return features
 
-def apply_pairwise_math(features):
-    """
-    Applies pairwise math to the extracted features.
+def apply_pairwise_math(features: pd.DataFrame) -> pd.DataFrame:
+    """Compute pairwise distances between features.
 
-    This step can be used to compute relationships between features or samples.
-    Here we compute the pairwise distances between features as an example.
+    Args:
+        features: DataFrame returned by :func:`extract_features`.
+
+    Returns:
+        DataFrame of pairwise Euclidean distances between feature columns.
 
     Other tracks to explore:
-    - Other pairwise metrics: Cosine similarity, correlation, etc.
-    - Graph-based analysis: Constructing a graph from the pairwise matrix and
-      analyzing its properties.
+        * Cosine similarity or correlation matrices.
+        * Graph-based analysis on the resulting distance matrix.
     """
     logger.info("Computing pairwise distances")
     return pd.DataFrame(pairwise_distances(features.T, metric='euclidean'),
                         index=features.columns, columns=features.columns)
 
-def select_features(features, target):
-    """
-    Performs feature selection using featurewiz.
+def select_features(features: pd.DataFrame, target: np.ndarray) -> list[str]:
+    """Perform feature selection using ``featurewiz`` if available.
 
-    Feature selection is the process of selecting a subset of relevant features
-    for use in model construction. This can help to improve model performance,
-    reduce overfitting, and decrease training time.
+    Args:
+        features: DataFrame of features with one row per sample.
+        target: Array of target labels corresponding to ``features``.
+
+    Returns:
+        List of selected feature names.
 
     Other tracks to explore:
-    - Other feature selection methods: Recursive Feature Elimination (RFE),
-      L1-based feature selection, or permutation importance.
-    - Dimensionality reduction techniques: Principal Component Analysis (PCA),
-      t-SNE, or UMAP.
+        * Recursive feature elimination or permutation importance.
+        * Dimensionality reduction via PCA, t-SNE or UMAP.
     """
     # featurewiz expects the target variable to be in the same dataframe
     # Here we create a dummy target for demonstration purposes.
@@ -129,9 +141,13 @@ def select_features(features, target):
         logger.warning("featurewiz failed: %s", exc)
         return list(features.columns)
 
-def main():
-    """
-    Main function to run the example workflow.
+def main() -> None:
+    """Run the end-to-end developer workflow example.
+
+    The function sequentially loads a sample signal, preprocesses it,
+    extracts a feature vector, computes a pairwise distance matrix and
+    finally performs feature selection.  The results are reported via
+    INFO logs so you can track the number of features at each stage.
     """
     logger.info("Starting developer workflow example")
     # 1. Load data
@@ -149,20 +165,29 @@ def main():
     # For demonstration, we'll treat each data point in the signal as a sample
     # and extract features for each. In a real scenario, you might use windowing.
     features = extract_features(denoised_signal)
-    logger.info("Extracted Features:\n%s", features.head())
-    logger.debug("Features shape: %s", features.shape)
+    feature_count = features.shape[1]
+    logger.info("Extracted %d base features", feature_count)
+    logger.debug("Features DataFrame shape: %s", features.shape)
+    logger.debug("Example features:\n%s", features.head())
 
 
     # 4. Apply pairwise math
     pairwise_matrix = apply_pairwise_math(features)
-    logger.info("Pairwise Distance Matrix:\n%s", pairwise_matrix.head())
+    logger.info("Pairwise distance matrix shape: %s", pairwise_matrix.shape)
+    logger.debug("Pairwise distance matrix head:\n%s", pairwise_matrix.head())
 
     # 5. Select features
     # Create a dummy target variable for demonstration
     np.random.seed(42)
     dummy_target = np.random.randint(0, 2, size=features.shape[0])
     selected_features = select_features(features.copy(), dummy_target)
-    logger.info("Selected features: %s", selected_features)
+    logger.info("Selected %d of %d features", len(selected_features), feature_count)
+    logger.debug("Selected features: %s", selected_features)
+    logger.info(
+        "Workflow complete. Retained %d of %d base features",
+        len(selected_features),
+        feature_count,
+    )
 
 
 if __name__ == '__main__':

@@ -58,15 +58,16 @@ A short walkthrough is provided in `notebooks/cleaning_tutorial.ipynb`.
 
 ### Developer workflow
 
-`notebooks/new_developer_workflow.py` is a minimal script that walks through
-loading a sample signal, cleaning it with `denoise_signal`, extracting features
-via `FeatureExtractor` and running a simple feature selection. It loads the
-example signal from `unitest/data/748987.npy` and resolves the path relative to
-the project root, so you can run it from any directory. Execute the script line
-by line to see each step in action, following the INFO log messages that mark
-each stage. If the optional `featurewiz` library is missing the script simply
-returns all features. Use the logged output to expand the experimentation flow
-and plug in your own data.
+`notebooks/new_developer_workflow.py` is a compact walkthrough of the main
+modules.  It loads a sample signal, cleans it with `denoise_signal`, extracts a
+set of statistical features via `FeatureExtractor`, applies a toy pairwise
+distance step and finally runs feature selection.  The sample data is loaded
+from `unitest/data/748987.npy` via a path resolved from the project root so the
+script runs from any working directory.  Execute it line by line to understand
+the flow; every stage emits INFO logs including how many features were
+generated and how many remain after selection.  If `featurewiz` is not
+available the script simply returns all features.  Use these logs as a starting
+point for extending your own experiments.
 
 ### Tests
 
