@@ -65,9 +65,10 @@ distance step and finally runs feature selection.  The sample data is loaded
 from `unitest/data/748987.npy` via a path resolved from the project root so the
 script runs from any working directory.  Execute it line by line to understand
 the flow; every stage emits INFO logs including how many features were
-generated and how many remain after selection.  The workflow requires
-`featurewiz` for the final selection step, so be sure it is installed.
-Use these logs as a starting point for extending your own experiments.
+generated and how many remain after selection.  The workflow attempts to use
+`featurewiz` for the final selection step. If that package fails to import, a
+warning is logged and all features are retained. Use these logs as a starting
+point for extending your own experiments.
 
 ### Tests
 

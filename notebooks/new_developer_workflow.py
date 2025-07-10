@@ -11,7 +11,8 @@ experiment step by step.  The workflow is intentionally linear:
 5. **Select features** via ``featurewiz`` (SULOV + XGB ranking).
 
 INFO logs report how many features exist at each stage so you can observe
-the effect of selection.  Run the file line by line in a Python session to
+the effect of selection.  If ``featurewiz`` is unavailable the script logs a
+warning and skips that step.  Run the file line by line in a Python session to
 adapt the workflow for your own data.
 """
 
@@ -24,7 +25,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import pairwise_distances
-from featurewiz import featurewiz
+try:  # optional dependency
+    from featurewiz import featurewiz  # type: ignore
+    HAVE_FEATUREWIZ = True
+    _featurewiz_error = None
+except Exception as exc:  # pragma: no cover - import may fail
+    HAVE_FEATUREWIZ = False
+    _featurewiz_error = exc
 
 # Add project root to ``sys.path`` when running from ``notebooks/``
 ROOT = Path(__file__).resolve().parents[1]
@@ -132,6 +139,9 @@ def select_features(features: pd.DataFrame, target: np.ndarray) -> list[str]:
     # array because the sample signal has no labels. Replace
     # ``dummy_target`` in :func:`main` with your own target values.
     features['target'] = target
+    if not HAVE_FEATUREWIZ:
+        logger.warning("featurewiz unavailable: %s", _featurewiz_error)
+        return list(features.columns)
     try:
         fwiz = featurewiz(features, 'target', corr_limit=0.7, verbose=0)
         selected_features, _ = fwiz.feature_selection()

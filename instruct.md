@@ -335,5 +335,6 @@
       happens next, including how many features are generated and retained.
       The script loads a small example signal from `unitest/data/748987.npy`
       using a path resolved from the project root so you can execute it from any
-      working directory. The example requires the `featurewiz` package for
-      the selection step, so ensure it is installed.
+      working directory. The example tries to use the `featurewiz` package for
+      the selection step; if the import fails, it logs a warning and retains all
+      features.
