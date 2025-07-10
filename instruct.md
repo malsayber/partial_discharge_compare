@@ -329,3 +329,12 @@
         * CLI usage examples for each stage
         * Directory structure and config options
     * Embed the modular flowchart (ASCII or image) into the docs.
+    * `notebooks/new_developer_workflow.py` provides a linear walk-through of
+      the main modules. Run it line by line to understand the flow and extend it
+      for your own experiments. Each stage emits INFO logs so you can see what
+      happens next, including how many features are generated and retained.
+      The script loads a small example signal from `unitest/data/748987.npy`
+      using a path resolved from the project root so you can execute it from any
+      working directory. The example tries to use the `featurewiz` package for
+      the selection step; if the import fails, it logs a warning and retains all
+      features.

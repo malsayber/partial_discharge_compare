@@ -143,3 +143,45 @@ def zscore_normalize(x: np.ndarray) -> np.ndarray:
     mean = np.mean(x)
     std = np.std(x) if np.std(x) > 0 else 1.0
     return (x - mean) / std
+
+
+def denoise_signal(
+    x: np.ndarray,
+    fs: float = 1.0,
+    band: tuple[float, float] | None = None,
+    method: str | None = None,
+    **kwargs: float,
+) -> np.ndarray:
+    """Apply basic denoising used in tutorial notebooks.
+
+    This helper performs band-pass filtering followed by optional advanced
+    denoising and finally z-score normalisation.  It mirrors the minimal
+    cleaning pipeline demonstrated in ``notebooks/new_developer_workflow.py``.
+
+    Parameters
+    ----------
+    x:
+        Raw signal to clean.
+    fs:
+        Sampling rate in Hz.
+    band:
+        ``(low, high)`` cutoff frequencies for the initial band-pass filter.
+        When ``None`` the values from ``config.preprocessing_options.bandpass_hz``
+        are used.
+    method:
+        Optional advanced denoising method passed to :func:`advanced_denoise`.
+    **kwargs:
+        Additional parameters forwarded to :func:`advanced_denoise`.
+
+    Returns
+    -------
+    np.ndarray
+        The cleaned signal.
+    """
+    if band is None:
+        band = tuple(config.CONFIG.preprocessing_options.bandpass_hz)
+    low, high = band
+    cleaned = bandpass_filter(x, low, high, fs=fs)
+    if method:
+        cleaned = advanced_denoise(cleaned, method=method, **kwargs)
+    return zscore_normalize(cleaned)
