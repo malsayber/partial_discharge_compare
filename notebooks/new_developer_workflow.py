@@ -122,8 +122,9 @@ def main():
     Main function to run the example workflow.
     """
     # 1. Load data
-    # The path is relative to the root of the project
-    file_path = 'unitest/data/748987.npy'
+    # Always resolve the sample path from the project root so this
+    # script works no matter the current working directory.
+    file_path = ROOT / 'unitest' / 'data' / '748987.npy'
     raw_signal = load_data(file_path)
 
     # 2. Preprocess data
