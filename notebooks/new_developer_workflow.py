@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 from pathlib import Path
 
@@ -13,7 +14,7 @@ try:  # featurewiz is optional and heavy
     from featurewiz import featurewiz
 except Exception as exc:  # pragma: no cover - optional dependency
     featurewiz = None
-    print("featurewiz unavailable:", exc)
+    logging.getLogger(__name__).warning("featurewiz unavailable: %s", exc)
 
 # Add project root to ``sys.path`` when running from ``notebooks/``
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +22,13 @@ sys.path.append(str(ROOT))
 
 from preprocess.cleaning import denoise_signal
 from features.extractors import FeatureExtractor
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 def load_data(file_path):
     """
@@ -33,6 +41,7 @@ def load_data(file_path):
     - Loading data from other formats like CSV, Parquet, or directly from a database.
     - Handling larger-than-memory datasets using libraries like Dask or Vaex.
     """
+    logger.info("Loading sample signal from %s", file_path)
     return np.load(file_path)
 
 def preprocess_data(signal):
@@ -48,6 +57,7 @@ def preprocess_data(signal):
     - Synthetic data augmentation: Creating more data by adding noise, shifting, or scaling the signal.
     - Outlier detection and removal: Identifying and removing anomalous data points.
     """
+    logger.info("Preprocessing signal")
     # Assume an example sampling rate of 100 MHz so the default
     # band-pass frequencies from ``config.yaml`` are valid.
     return denoise_signal(signal, fs=100_000_000)
@@ -66,6 +76,7 @@ def extract_features(denoised_signal):
     - Automated feature engineering: Using libraries like featuretools to automatically
       generate features.
     """
+    logger.info("Extracting features")
     # Pass the same sampling rate used during preprocessing
     extractor = FeatureExtractor(fs=100_000_000)
     # The extractor expects a DataFrame, so we convert the signal
@@ -85,6 +96,7 @@ def apply_pairwise_math(features):
     - Graph-based analysis: Constructing a graph from the pairwise matrix and
       analyzing its properties.
     """
+    logger.info("Computing pairwise distances")
     return pd.DataFrame(pairwise_distances(features.T, metric='euclidean'),
                         index=features.columns, columns=features.columns)
 
@@ -106,7 +118,7 @@ def select_features(features, target):
     # Here we create a dummy target for demonstration purposes.
     # In a real scenario, you would use your actual target variable.
     if featurewiz is None:
-        # Fallback to returning all feature names
+        logger.info("featurewiz missing, skipping selection")
         return list(features.columns)
     try:
         features['target'] = target
@@ -114,41 +126,43 @@ def select_features(features, target):
         selected_features, _ = fwiz.feature_selection()
         return selected_features
     except Exception as exc:  # pragma: no cover - fallback path
-        print("featurewiz failed:", exc)
+        logger.warning("featurewiz failed: %s", exc)
         return list(features.columns)
 
 def main():
     """
     Main function to run the example workflow.
     """
+    logger.info("Starting developer workflow example")
     # 1. Load data
     # Always resolve the sample path from the project root so this
     # script works no matter the current working directory.
     file_path = ROOT / 'unitest' / 'data' / '748987.npy'
     raw_signal = load_data(file_path)
+    logger.debug("Raw signal length: %d", len(raw_signal))
 
     # 2. Preprocess data
     denoised_signal = preprocess_data(raw_signal)
+    logger.debug("Denoised signal length: %d", len(denoised_signal))
 
     # 3. Extract features
     # For demonstration, we'll treat each data point in the signal as a sample
     # and extract features for each. In a real scenario, you might use windowing.
     features = extract_features(denoised_signal)
-    print("Extracted Features:")
-    print(features.head())
+    logger.info("Extracted Features:\n%s", features.head())
+    logger.debug("Features shape: %s", features.shape)
 
 
     # 4. Apply pairwise math
     pairwise_matrix = apply_pairwise_math(features)
-    print("\nPairwise Distance Matrix:")
-    print(pairwise_matrix.head())
+    logger.info("Pairwise Distance Matrix:\n%s", pairwise_matrix.head())
 
     # 5. Select features
     # Create a dummy target variable for demonstration
     np.random.seed(42)
     dummy_target = np.random.randint(0, 2, size=features.shape[0])
     selected_features = select_features(features.copy(), dummy_target)
-    print(f"\nSelected features: {selected_features}")
+    logger.info("Selected features: %s", selected_features)
 
 
 if __name__ == '__main__':

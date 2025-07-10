@@ -63,8 +63,10 @@ loading a sample signal, cleaning it with `denoise_signal`, extracting features
 via `FeatureExtractor` and running a simple feature selection. It loads the
 example signal from `unitest/data/748987.npy` and resolves the path relative to
 the project root, so you can run it from any directory. Execute the script line
-by line to see each step in action and adapt it for your own experiments. If the
-optional `featurewiz` library is missing the script simply returns all features.
+by line to see each step in action, following the INFO log messages that mark
+each stage. If the optional `featurewiz` library is missing the script simply
+returns all features. Use the logged output to expand the experimentation flow
+and plug in your own data.
 
 ### Tests
 
