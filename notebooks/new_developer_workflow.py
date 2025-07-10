@@ -7,8 +7,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from featurewiz import featurewiz
 from sklearn.metrics.pairwise import pairwise_distances
+
+try:  # featurewiz is optional and heavy
+    from featurewiz import featurewiz
+except Exception as exc:  # pragma: no cover - optional dependency
+    featurewiz = None
+    print("featurewiz unavailable:", exc)
 
 # Add project root to ``sys.path`` when running from ``notebooks/``
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,7 +48,9 @@ def preprocess_data(signal):
     - Synthetic data augmentation: Creating more data by adding noise, shifting, or scaling the signal.
     - Outlier detection and removal: Identifying and removing anomalous data points.
     """
-    return denoise_signal(signal)
+    # Assume an example sampling rate of 100 MHz so the default
+    # band-pass frequencies from ``config.yaml`` are valid.
+    return denoise_signal(signal, fs=100_000_000)
 
 def extract_features(denoised_signal):
     """
@@ -59,7 +66,8 @@ def extract_features(denoised_signal):
     - Automated feature engineering: Using libraries like featuretools to automatically
       generate features.
     """
-    extractor = FeatureExtractor()
+    # Pass the same sampling rate used during preprocessing
+    extractor = FeatureExtractor(fs=100_000_000)
     # The extractor expects a DataFrame, so we convert the signal
     signal_df = pd.DataFrame({'signal': denoised_signal})
     features = extractor.extract_features(signal_df)
@@ -97,10 +105,17 @@ def select_features(features, target):
     # featurewiz expects the target variable to be in the same dataframe
     # Here we create a dummy target for demonstration purposes.
     # In a real scenario, you would use your actual target variable.
-    features['target'] = target
-    fwiz = featurewiz(features, 'target', corr_limit=0.7, verbose=0)
-    selected_features, _ = fwiz.feature_selection()
-    return selected_features
+    if featurewiz is None:
+        # Fallback to returning all feature names
+        return list(features.columns)
+    try:
+        features['target'] = target
+        fwiz = featurewiz(features, 'target', corr_limit=0.7, verbose=0)
+        selected_features, _ = fwiz.feature_selection()
+        return selected_features
+    except Exception as exc:  # pragma: no cover - fallback path
+        print("featurewiz failed:", exc)
+        return list(features.columns)
 
 def main():
     """

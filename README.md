@@ -61,8 +61,9 @@ A short walkthrough is provided in `notebooks/cleaning_tutorial.ipynb`.
 `notebooks/new_developer_workflow.py` is a minimal script that walks through
 loading a sample signal, cleaning it with `denoise_signal`, extracting features
 via `FeatureExtractor` and running a simple feature selection. Execute it
-line-by-line to understand how the modules fit together and to try out your own
-experiments.
+line by line to see each step in action and adapt it to your own experiments.
+If the optional `featurewiz` library is missing the script simply returns all
+features.
 
 ### Tests
 
