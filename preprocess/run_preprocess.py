@@ -12,6 +12,10 @@ from tqdm import tqdm
 
 import numpy as np
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 import config
 from preprocess import discovery, io, cleaning, augmentation, windowing
 
