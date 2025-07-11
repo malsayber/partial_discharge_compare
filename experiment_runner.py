@@ -44,7 +44,7 @@ def load_data(dataset_config: Dict[str, Any]) -> pd.DataFrame:
     """Loads data from the specified path. Placeholder for actual data loading."""
     logging.info(f"Loading data for dataset: {dataset_config['path']}")
     # In a real scenario, this would load your actual PD signals.
-    # For demonstration, we'll return a dummy DataFrame.
+    # For demonstration,. we'll return a dummy DataFrame.
     return pd.DataFrame({
         'signal_feature_1': [i * 0.1 for i in range(100)],
         'signal_feature_2': [i * 0.5 for i in range(100)],
